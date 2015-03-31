@@ -1,0 +1,9 @@
+{
+  "db": {
+     "host"     : "localhost",
+     "database" : "ryshkin_eventagency",
+     "charset"  : "utf8",
+     "user"     : "root",
+     "password" : ""
+   }
+}
