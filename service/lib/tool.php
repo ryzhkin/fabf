@@ -16,7 +16,8 @@ class tool {
 
     // Don't need comments here.
     public static function readConfiguration() {
-      $configString = file_get_contents(self::$config['configFile']);
+     // self::xlog('t', defined('__DIR__'));
+      $configString = file_get_contents(__DIR__.'/../../'.self::$config['configFile']);
       try {
         $config = json_decode($configString, true);
         self::$config = array_merge(self::$config, $config);
@@ -29,7 +30,7 @@ class tool {
     public static function xlog($tag, $msg) {
         $msg = print_r($msg, true);
         $today = date("d.m.Y");
-        $filename = self::$config['logFolder']."/{$tag}_{$today}.txt";
+        $filename = __DIR__.'/../../'.self::$config['logFolder']."/{$tag}_{$today}.txt";
         if (!file_exists($filename)) {
             //chmod($filename, 0777);
         }
@@ -82,6 +83,75 @@ class tool {
             }
 
     }
+
+    // Don't need comments here
+    public static function getIp () {
+        $ip = 'unknown';
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip=$_SERVER['HTTP_CLIENT_IP'];
+        }
+        elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))
+        {
+            $ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+        else
+        {
+            $ip=$_SERVER['REMOTE_ADDR'];
+        }
+        $ip = (($ip == '' || substr_count($ip, '127.0') > 0)?'unknown':$ip);
+        /*
+        if ($ip == 'unknown') {
+            try {
+              $result = json_decode(file_get_contents('http://jsonipgeobase.appspot.com'), true);
+              if ($result['status'] == 'ok') {
+                $ip = $result['ip'];
+              }
+            } catch (Exception $e) {
+
+            }
+        }//*/
+        return $ip;
+
+        // http://jsonipgeobase.appspot.com/
+
+    }
+
+    // Don't need comments here
+    public static function getLocationByIp ($ip) {
+      $result = array(
+         'status' => 'no'
+      );
+      try {
+        $result = json_decode(file_get_contents('http://freegeoip.net/json/'.(($ip !== 'unknown')?$ip:'')), true);
+        $result['status'] = 'ok';
+      } catch (Exception $e) {
+
+      }
+      return $result;
+    }
+
+    // Don't need comments here
+    public static function getLocation () {
+      $ip = self::getIp();
+      $result = self::getLocationByIp($ip);
+      return $result;
+    }
+
+
+    // Get URL with HTTP-Basic authentication
+    public static function getAuthHttpUrl($url, $login, $password) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+        curl_setopt($ch, CURLOPT_USERPWD, "$login:$password");
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $out = curl_exec($ch);
+        curl_close($ch);
+        return $out;
+    }
+
+
 
 }
 
