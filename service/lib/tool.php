@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class tool
+ * @Author: ryshkin@gmail.com
+ */
 class tool {
     // Configuration for this tool
     public static $config = array(
