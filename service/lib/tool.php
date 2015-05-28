@@ -141,7 +141,6 @@ class tool {
       return $result;
     }
 
-
     // Get URL with HTTP-Basic authentication
     public static function getAuthHttpUrl($url, $login, $password) {
         $ch = curl_init();

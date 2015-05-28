@@ -56,7 +56,105 @@
 //*/
 
 
-  tool::xlog('location', tool::getLocation());
+  //tool::xlog('location', tool::getLocation());
 
+
+
+class ServiceDo {
+    //public static $test1 = "rrrr";
+    public static function prepareText($str) {
+        $str = str_replace(array("\r\n", "\r", "\n", ".", ",", ":", "'", '"', "(", ")", "[", "]", "{", "}", "?", "!"), '', $str);
+        $str = mb_convert_case($str, MB_CASE_UPPER, "UTF-8");
+        $words = explode(" ", str_replace("-"," ", $str));
+        $en = array();
+        $ru = array();
+        foreach ($words as $word) {
+            if (!empty($word) && $word!='') {
+              if(eregi("[a-zA-z]", $word)) {
+                $en[] = $word;
+              } else {
+                $ru[] = $word;
+              }
+            }
+        }
+        return array(
+          'en' => $en,
+          'ru' => $ru,
+        );
+    }
+    public static function morphyText() {
+      require_once('lib/phpmorphy/src/common.php');
+      try {
+        $morphy = new phpMorphy(__DIR__.'/lib/phpmorphy/dicts/ru1', 'ru_RU', array(
+          'storage' => PHPMORPHY_STORAGE_FILE,
+        ));
+        echo $morphy->getEncoding()."\n";
+        echo $morphy->getLocale()."\n";
+        $src = "Что же умеет эта библиотека? Для начала хотел обратить внимание что можно получить корень слова, морфологические формы слова, определение частей речи, грамматические формы. Я думаю многие разработчики понимают пользу таких преобразований, например, есть возможность улучшить поиск в своей системе, если получать корень слова и искать уже по нему. В данном случае моя задача состояла сбор анкоров в СЕО системе, учитывая морфологию слов.\n";
+        echo mb_convert_encoding($src, 'cp866', 'utf-8');
+        echo "\n";
+        // print_r(self::prepareText($src));
+        echo(mb_convert_encoding(json_encode(self::prepareText($src), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE), 'cp866', 'utf-8'));
+        echo "\n";
+
+        //print_r($morphy->getBaseForm(self::prepareText($src)['ru']));
+        echo(mb_convert_encoding(json_encode($morphy->getBaseForm(self::prepareText($src)['ru']), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE), 'cp866', 'utf-8'));
+        echo "\n";
+
+
+
+
+      } catch(phpMorphy_Exception $e) {
+        die('Error occured while creating phpMorphy instance: ' . $e->getMessage());
+      }
+    }
+
+}
+
+
+
+
+// Start point
+//print_r($argv);
+if (count($argv) > 1) {
+  if (method_exists('ServiceDo', $argv[1])) {
+    $params = array();
+    for ($i = 2; $i < count($argv); $i++) {
+       $params[] = $argv[$i];
+    }
+    call_user_func_array('ServiceDo::'.$argv[1], $params);
+  } else {
+    echo "Unknown method - '".$argv[1]."'\n";
+  }
+} else {
+  $methods = get_class_methods(ServiceDo);
+  echo "Methods:\n";
+  foreach ($methods as $method) {
+    echo $method;
+    $r = new ReflectionMethod('ServiceDo', $method);
+    $params = $r->getParameters();
+    if (count($params) > 0) {
+        echo " (";
+        $c = 1;
+        foreach ($params as $param) {
+           echo (($param->isOptional())?"[":"").$param->getName().(($param->isOptional())?"]":"").(($c < count($params))?", ":"");
+           $c++;
+        }
+        echo ") ";
+    }
+    if (property_exists(ServiceDo, $method)) {
+
+      //echo $method." - ".call_user_func('ServiceDo::d_'.$method)."\n";
+      echo " - ";
+      $vars = get_class_vars('ServiceDo');
+      echo $vars[$method];
+    }
+    echo "\n";
+
+
+  }
+
+
+}
 
 ?>
