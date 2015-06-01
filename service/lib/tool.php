@@ -45,6 +45,15 @@ class tool {
         //chmod($filename, 0644);
     }
 
+    // Output to console with reencoding
+    public static function clog($msg, $encoding = 'cp866') {
+      $msg = print_r($msg, true);
+      $msg = mb_convert_encoding($msg, $encoding, 'utf-8');
+      echo $msg;
+      echo "\n";
+    }
+
+
     // Get connection to  DB MYSQLPDO
     private static  function getDbMYSQLPDO() {
         $db = null;
@@ -153,6 +162,8 @@ class tool {
         curl_close($ch);
         return $out;
     }
+
+
 
 
 

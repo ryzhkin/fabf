@@ -62,7 +62,7 @@
 
 class ServiceDo {
     //public static $test1 = "rrrr";
-    public static function prepareText($str) {
+    public static function prepareText($str, $minWordLen = 0) {
         $str = str_replace(array("\r\n", "\r", "\n", ".", ",", ":", "'", '"', "(", ")", "[", "]", "{", "}", "?", "!"), '', $str);
         $str = mb_convert_case($str, MB_CASE_UPPER, "UTF-8");
         $words = explode(" ", str_replace("-"," ", $str));
@@ -70,10 +70,14 @@ class ServiceDo {
         $ru = array();
         foreach ($words as $word) {
             if (!empty($word) && $word!='') {
-              if(eregi("[a-zA-z]", $word)) {
-                $en[] = $word;
+              if(preg_match("/[a-zA-z]/i", $word, $matches)) {
+                if ($minWordLen >= 0 && strlen($word) >= $minWordLen) {
+                  $en[] = $word;
+                }
               } else {
-                $ru[] = $word;
+                if ($minWordLen >= 0 && mb_strlen($word, 'utf-8') >= $minWordLen) {
+                  $ru[] = $word;
+                }
               }
             }
         }
@@ -82,27 +86,46 @@ class ServiceDo {
           'ru' => $ru,
         );
     }
+
+    public static function getFrequencies($text){
+        // Удалим все кроме букв
+        //$text = preg_replace("/[^\p{L}]/iu", "", strtolower($text));
+
+        // Найдем параметры для расчета частоты
+       // $total = strlen($text);
+       // $data = count_chars($text, 0);
+
+       /* // Ну и сам расчет
+        array_walk($data, function (&$item, $key, $total){
+            if ($total !== 0)
+            $item = round($item/$total, 3);
+        }, $total);*/
+        //return $data;
+        //return array_values($data);
+    }
+
     public static function morphyText() {
       require_once('lib/phpmorphy/src/common.php');
       try {
-        $morphy = new phpMorphy(__DIR__.'/lib/phpmorphy/dicts/ru1', 'ru_RU', array(
+        $morphy = new phpMorphy(__DIR__.'/lib/phpmorphy/dicts/ru2', 'ru_RU', array(
           'storage' => PHPMORPHY_STORAGE_FILE,
         ));
         echo $morphy->getEncoding()."\n";
         echo $morphy->getLocale()."\n";
-        $src = "Что же умеет эта библиотека? Для начала хотел обратить внимание что можно получить корень слова, морфологические формы слова, определение частей речи, грамматические формы. Я думаю многие разработчики понимают пользу таких преобразований, например, есть возможность улучшить поиск в своей системе, если получать корень слова и искать уже по нему. В данном случае моя задача состояла сбор анкоров в СЕО системе, учитывая морфологию слов.\n";
-        echo mb_convert_encoding($src, 'cp866', 'utf-8');
-        echo "\n";
-        // print_r(self::prepareText($src));
-        echo(mb_convert_encoding(json_encode(self::prepareText($src), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE), 'cp866', 'utf-8'));
-        echo "\n";
+        $src = "Hi my dear friend. How are you? Что же умеет эта библиотека? Для начала хотел обратить внимание что можно получить корень слова, морфологические формы слова, определение частей речи, грамматические формы. Я думаю многие разработчики понимают пользу таких преобразований, например, есть возможность улучшить поиск в своей системе, если получать корень слова и искать уже по нему. В данном случае моя задача состояла сбор анкоров в СЕО системе, учитывая морфологию слов.\n";
+        $preparedText = self::prepareText($src, 4);
+        $lemmas       = $morphy->getBaseForm($preparedText['ru']);
 
-        //print_r($morphy->getBaseForm(self::prepareText($src)['ru']));
-        echo(mb_convert_encoding(json_encode($morphy->getBaseForm(self::prepareText($src)['ru']), JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE), 'cp866', 'utf-8'));
-        echo "\n";
+        //tool::clog($src);
+        tool::clog($preparedText);
+        //tool::clog($lemmas);
+
+        //tool::clog($morphy->getGramInfoMergeForms('БИБЛИОТЕКА'));
+        //tool::clog($morphy->getGramInfoMergeForms('НЕ'));
+        //tool::clog($morphy->getGramInfoMergeForms(array('БИБЛИОТЕКА', 'НЕ')));
 
 
-
+        //tool::clog(self::getFrequencies($src));
 
       } catch(phpMorphy_Exception $e) {
         die('Error occured while creating phpMorphy instance: ' . $e->getMessage());
