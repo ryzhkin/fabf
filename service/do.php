@@ -107,18 +107,21 @@ class ServiceDo {
     public static function morphyText() {
       require_once('lib/phpmorphy/src/common.php');
       try {
-        $morphy = new phpMorphy(__DIR__.'/lib/phpmorphy/dicts/ru2', 'ru_RU', array(
+        $morphyRU = new phpMorphy(__DIR__.'/lib/phpmorphy/dicts/ru2', 'ru_RU', array(
           'storage' => PHPMORPHY_STORAGE_FILE,
         ));
-        echo $morphy->getEncoding()."\n";
-        echo $morphy->getLocale()."\n";
+
+        //echo $morphyRU->getEncoding()."\n";
+        //echo $morphyRU->getLocale()."\n";
         $src = "Hi my dear friend. How are you? Что же умеет эта библиотека? Для начала хотел обратить внимание что можно получить корень слова, морфологические формы слова, определение частей речи, грамматические формы. Я думаю многие разработчики понимают пользу таких преобразований, например, есть возможность улучшить поиск в своей системе, если получать корень слова и искать уже по нему. В данном случае моя задача состояла сбор анкоров в СЕО системе, учитывая морфологию слов.\n";
         $preparedText = self::prepareText($src, 4);
-        $lemmas       = $morphy->getBaseForm($preparedText['ru']);
+        $lemmas       = $morphyRU->getBaseForm($preparedText['ru']);
 
         //tool::clog($src);
         tool::clog($preparedText);
-        //tool::clog($lemmas);
+        tool::clog($lemmas);
+
+
 
         //tool::clog($morphy->getGramInfoMergeForms('БИБЛИОТЕКА'));
         //tool::clog($morphy->getGramInfoMergeForms('НЕ'));
@@ -126,6 +129,11 @@ class ServiceDo {
 
 
         //tool::clog(self::getFrequencies($src));
+
+
+
+        // http://php.net/manual/en/function.fann-create-standard.php
+        //$ann = fann_create_standard(3, 256, 128, 3);
 
       } catch(phpMorphy_Exception $e) {
         die('Error occured while creating phpMorphy instance: ' . $e->getMessage());
