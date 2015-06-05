@@ -151,12 +151,26 @@ class tool {
     }
 
     // Get URL with HTTP-Basic authentication
-    public static function getAuthHttpUrl($url, $login, $password) {
+    public static function getAuthHttpUrl0($url, $login, $password) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
         curl_setopt($ch, CURLOPT_USERPWD, "$login:$password");
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $out = curl_exec($ch);
+        curl_close($ch);
+        return $out;
+    }
+    // Получение данных по URL с использованием HTTP-Basic authentication
+    public static function getAuthHttpUrl($url, $login = null, $password = null) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        if ($login !== null && $password !== null) {
+            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+            curl_setopt($ch, CURLOPT_USERPWD, "$login:$password");
+        }
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         $out = curl_exec($ch);
         curl_close($ch);

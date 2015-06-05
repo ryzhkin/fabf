@@ -87,21 +87,27 @@ class ServiceDo {
         );
     }
 
-    public static function getFrequencies($text) {
-        // Удалим все кроме букв
-        //$text = preg_replace("/[^\p{L}]/iu", "", strtolower($text));
+    // Получаем массив ссылок с ресурса $type и с настройками $options
+    private static function getLinks($type = '112', $options = array( ) ) {
 
-        // Найдем параметры для расчета частоты
-       // $total = strlen($text);
-       // $data = count_chars($text, 0);
+    }
 
-       /* // Ну и сам расчет
-        array_walk($data, function (&$item, $key, $total){
-            if ($total !== 0)
-            $item = round($item/$total, 3);
-        }, $total);*/
-        //return $data;
-        //return array_values($data);
+    private static function getContent($url) {
+      require_once('lib/phpQuery/phpQuery/phpQuery.php');
+      $content = '';
+      if (strpos($url, '112.ua') !== FALSE ) {
+        $content = tool::getAuthHttpUrl($url);
+        $doc = phpQuery::newDocument($content);
+        $a = $doc->find('.article-text');
+        pq($a)->find('.article-img')->remove();
+        pq($a)->find('.article_attached')->remove();
+        pq($a)->find('p:contains("Ранее сообщалось")')->remove();
+        mb_regex_encoding("UTF-8");
+        $content = trim(mb_ereg_replace('/\s+/S', " ", $a->text()));
+
+
+      }
+      return $content;
     }
 
     public static function morphyText() {
@@ -207,6 +213,7 @@ class ServiceDo {
       return $s1;
     }
     public static function getStatisticForTexts ($texts = array()) {
+        if (count($texts) == 0)
         $texts = array(
           "Назначение Михеила Саакашвили председателем Одесской ОГА привлекло внимание за рубежом. Об этом заявил президент Украины Петр Порошенко в ходе встречи с председателем Одесской ОГА Михеилом Саакашвили, сообщили в пресс-службе главы государства.",
           "Почти 60 тонн сыра, который перевозился без необходимых документов, не пустили в Россию из Казахстана, сообщается на сайте Россельхознадзора.",
@@ -243,6 +250,14 @@ class ServiceDo {
         tool::clog($statistic);
         return $statistic;
     }
+
+    public static $run = "Запуск серверного кода системы";
+    public static function run () {
+        $content = self::getContent('http://112.ua/ato/v-luganskoy-obl-na-mine-podorvalsya-traktor-voditel-ranen-mvd-234944.html');
+        tool::clog($content);
+
+    }
+
 
 
 }
