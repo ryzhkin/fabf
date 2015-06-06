@@ -177,8 +177,20 @@ class tool {
         return $out;
     }
 
+    public static function clearText($text) {
+        $text = str_replace("\n", "", $text);
+        $text = str_replace("  ", " ", $text);
+        $text = str_replace("\t", "", $text);
+        $text = trim($text);
+        return $text;
+    }
 
-
+    public static function ruStrDateToEng($d) {
+       $ru_month = array( 'января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря');
+       $en_month = array( 'January', 'February', 'March', 'May', 'June', 'July', 'August', 'September', 'Oktober', 'November', 'December' );
+       $d = mb_convert_case($d, MB_CASE_LOWER, 'utf-8');
+       return str_ireplace ($ru_month, $en_month, $d);
+    }
 
 
 }

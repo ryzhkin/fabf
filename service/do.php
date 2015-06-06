@@ -62,7 +62,7 @@
 
 class ServiceDo {
     public static $prepareText = "Splitting and preparing text to the words. Returned array of words.";
-    public static function prepareText($str, $minWordLen = 0) {
+    public static function prepareText($str, $minWordLen = 5) {
         $str = str_replace(array("\r\n", "\r", "\n", ".", ",", ":", "'", '"', "(", ")", "[", "]", "{", "}", "?", "!"), '', $str);
         $str = mb_convert_case($str, MB_CASE_UPPER, "UTF-8");
         $words = explode(" ", str_replace("-"," ", $str));
@@ -89,7 +89,28 @@ class ServiceDo {
 
     // Получаем массив ссылок с ресурса $type и с настройками $options
     private static function getLinks($type = '112', $options = array( ) ) {
-
+      $links = array();
+      switch ($type) {
+          case '112': {
+             require_once('lib/phpQuery/phpQuery/phpQuery.php');
+             $url = 'http://112.ua/archive';
+             $content = tool::getAuthHttpUrl($url);
+             $doc = phpQuery::newDocument($content);
+             $items = $doc->find('ul.news-list li');
+             foreach ($items as $item) {
+               $url = pq($item)->find('p a')->attr('href');
+               if (strpos($url, '/video/') === FALSE) {
+                 $links[] = array(
+                   'date_time_str' => pq($item)->find('.time')->text(),
+                   'date_time'     => date('Y-m-d H:i:s', strtotime(tool::ruStrDateToEng(pq($item)->find('.time')->text())) ),
+                   'url'           => 'http://112.ua'.$url,
+                 );
+               }
+             }
+             break;
+          }
+      }
+      return $links;
     }
 
     private static function getContent($url) {
@@ -101,11 +122,9 @@ class ServiceDo {
         $a = $doc->find('.article-text');
         pq($a)->find('.article-img')->remove();
         pq($a)->find('.article_attached')->remove();
+        pq($a)->find('.flowplayer')->remove();
         pq($a)->find('p:contains("Ранее сообщалось")')->remove();
-        mb_regex_encoding("UTF-8");
-        $content = trim(mb_ereg_replace('/\s+/S', " ", $a->text()));
-
-
+        $content = tool::clearText($a->text());
       }
       return $content;
     }
@@ -247,14 +266,27 @@ class ServiceDo {
           'en' => self::sortStatistic($en_out),
           'ru' => self::sortStatistic($ru_out),
         );
-        tool::clog($statistic);
+       // tool::clog($statistic);
         return $statistic;
     }
 
     public static $run = "Запуск серверного кода системы";
     public static function run () {
-        $content = self::getContent('http://112.ua/ato/v-luganskoy-obl-na-mine-podorvalsya-traktor-voditel-ranen-mvd-234944.html');
-        tool::clog($content);
+       //$content = self::getContent('http://112.ua/ato/v-luganskoy-obl-na-mine-podorvalsya-traktor-voditel-ranen-mvd-234944.html');
+       //tool::clog($content);
+       $links = self::getLinks();
+       //tool::clog($links);
+       $texts = array();
+       foreach ($links as $link) {
+         tool::clog($link['url']);
+         $texts[] = self::getContent($link['url']);
+         //tool::xlog('texts', $link['url']);
+         //tool::xlog('texts', self::getContent($link['url']));
+       }
+       //tool::clog($texts);
+       $statistic = self::getStatisticForTexts($texts);
+       tool::xlog('statistic', $statistic);
+       tool::clog($statistic);
 
     }
 
@@ -301,7 +333,8 @@ if (count($argv) > 1) {
       //echo $method." - ".call_user_func('ServiceDo::d_'.$method)."\n";
       echo " - ";
       $vars = get_class_vars('ServiceDo');
-      echo $vars[$method];
+      //echo $vars[$method];
+      tool::clog($vars[$method]);
     }
     echo "\n";
 
