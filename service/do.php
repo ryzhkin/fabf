@@ -11,7 +11,7 @@
   */
 
 
-/*
+ /*
    $twitter = new tmhOAuth(array(
        'consumer_key'               => 'ikyC9rp0VUPmWxxAAtezTGRKg',
        'consumer_secret'            => 'IyTw6JtSbq1blaEQs0hzUTJluTiR2K933MbI2AxdRmKI8ZfesN',
@@ -53,7 +53,7 @@
 
      }
    }
-//*/
+ //*/
 
 
   //tool::xlog('location', tool::getLocation());
@@ -94,6 +94,16 @@ class ServiceDo {
           case '112': {
              require_once('lib/phpQuery/phpQuery/phpQuery.php');
              $url = 'http://112.ua/archive';
+             $query = '';
+             if (isset($options['category'])) {
+               foreach ($options['category'] as $c) {
+                  $query .= 'category[]='.$c.'&';
+               }
+               $query = rtrim($query, '&');
+             }
+             if ($query !== '') {
+               $url .= '?'.$query;
+             }
              $content = tool::getAuthHttpUrl($url);
              $doc = phpQuery::newDocument($content);
              $items = $doc->find('ul.news-list li');
@@ -258,8 +268,8 @@ class ServiceDo {
     }
     public static function getStatisticForTexts ($texts = array(), $options = array()) {
         $opt = array(
-          'minStatCount'  => 2,   // Отсечение по минимальному кол-ву повторов слов
-          'maxCountWords' => 10,  // Кол-во слов которые попадают в конечный рейтинг
+          'minStatCount'  => 2,          // Отсечение по минимальному кол-ву повторов слов
+          'maxCountWords' => 100000000,  // Кол-во слов которые попадают в конечный рейтинг
         );
         $opt = array_merge($opt, $options);
         if (count($texts) == 0) {
@@ -349,54 +359,70 @@ class ServiceDo {
         return $statistic;
     }
 
+
+    private static function getTexts() {
+      tool::clog('Get ', 'yellow', false);
+      tool::clog('BAD', 'red', false);
+      tool::clog(' texts:'."\n", 'yellow');
+
+      tool::clog('1) Get from 112.ua: ', 'yellow');
+
+      $links = self::getLinks('112', array(
+         'category' => [7]
+      ));
+      $percent = 0;
+      $c = 0;
+      $start = time();
+      foreach ($links as &$link) {
+            //tool::clog($link);
+            $text = self::getContent($link['url']);
+            $link['text'] = $text;
+
+            $c++;
+            $dpercent = floor(($c/count($links))*100);
+            if ($dpercent > $percent) {
+                $percent = $dpercent;
+                sleep(1);
+                echo "\x1b[K";
+                tool::clog("\r  Progress - ".$percent.'% ', 'white', false);
+                if ($percent < 100) {
+                    //tool::clog('...', '', false);
+                } else {
+                    tool::clog("\r  Completed - ", '', false);
+                    tool::clog($percent.'%', 'green', false);
+                    tool::clog(" Time: ".(time()-$start)." s", 'cyan', false);
+                    tool::clog('');
+                }
+            }
+      }
+      self::saveDataToFile($links, 'data/texts_bad.json');
+
+    }
+
     public static $run = "Запуск серверного кода системы";
     public static function run () {
-       //$content = self::getContent('http://112.ua/ato/v-luganskoy-obl-na-mine-podorvalsya-traktor-voditel-ranen-mvd-234944.html');
-       //tool::clog($content);
+       // self::getTexts();
 
-       /*
-       $links = self::getLinks();
-       //tool::clog($links);
-       $texts = array();
-       $percent = 0;
-       $c = 0;
-       foreach ($links as &$link) {
-         // tool::clog($link);
-         // tool::clog($link['url']);
-         $text = self::getContent($link['url']);
-         $link['text'] = $text;
-         //$texts[] = $text;
-         $c++;
-         $dpercent = floor(($c/count($links))*100);
-         if ($dpercent > $percent) {
-           $percent = $dpercent;
-           tool::clog($percent.'%', '', false);
-           if ($percent < 100) {
-             tool::clog('...', '', false);
-           } else {
-             tool::clog('');
-           }
-         }
-       }
-       self::saveDataToFile($links, 'data/texts.json');
-       // */
-
-       $links = self::getLinks('file', 'data/texts.json');
+       $links = self::getLinks('file', 'data/texts_bad.json');
        //tool::clog($links);
        $statistic = self::getStatisticForTexts($links, array(
            //'minStatCount'  => 2,   // Отсечение по минимальному кол-ву повторов слов
-           'maxCountWords' => 255,   // Кол-во слов которые попадают в конечный рейтинг
+           //'maxCountWords' => 255,   // Кол-во слов которые попадают в конечный рейтинг
        ));
-       self::saveDataToFile($statistic, 'data/statistic.json');
+       self::saveDataToFile($statistic, 'data/statistic_bad.json');
        //tool::clog($statistic);
+       //*/
 
 
-        //tool::clog($texts);
-      /*
-       $statistic = self::getStatisticForTexts($texts);
-       tool::xlog('statistic', $statistic);
-       tool::clog($statistic);
-      */
+
+
+       // http://php.net/manual/en/function.fann-create-standard.php
+       // $ann = fann_create_standard(3, 256, 128, 3);
+
+
+
+
+
 
     }
 
