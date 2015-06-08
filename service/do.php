@@ -10,7 +10,7 @@
    }
   */
 
-   print_r ("Start service ....\n");
+
 /*
    $twitter = new tmhOAuth(array(
        'consumer_key'               => 'ikyC9rp0VUPmWxxAAtezTGRKg',
@@ -117,7 +117,7 @@ class ServiceDo {
       return $links;
     }
 
-    private static function saveLinksToFile($links, $fileName= 'content.json') {
+    private static function saveDataToFile($links, $fileName= 'content.json') {
       $links = json_encode($links, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
       $filename = __DIR__.'/../'.$fileName;
       if (!file_exists($filename)) {
@@ -143,9 +143,6 @@ class ServiceDo {
       }
       return $content;
     }
-
-
-
 
     public static function morphyText() {
       require_once('lib/phpmorphy/src/common.php');
@@ -183,15 +180,25 @@ class ServiceDo {
       }
     }
 
-    private static function sortStatistic(&$words) {
-       uasort($words, function ($a, $b) {
-          if ($a['count'] == $b['count']) {
-              return 0;
-          }
-          return ($a['count'] < $b['count']) ? -1 : 1;
-      });
+    private static function sortStatistic(&$words, $inverse = false) {
+      if ($inverse) {
+          uasort($words, function ($a, $b) {
+              if ($a['count'] == $b['count']) {
+                  return 0;
+              }
+              return ($a['count'] > $b['count']) ? -1 : 1;
+          });
+      } else {
+          uasort($words, function ($a, $b) {
+              if ($a['count'] == $b['count']) {
+                  return 0;
+              }
+              return ($a['count'] < $b['count']) ? -1 : 1;
+          });
+      }
       return $words;
     }
+
     private static function countWords($text = '') {
        $text = ($text != '')?$text:"Hi my dear friend. How are you? Что же умеет эта библиотека? Для начала хотел обратить внимание что можно получить корень слова, морфологические формы слова, определение частей речи, грамматические формы. Я думаю многие разработчики понимают пользу таких преобразований, например, есть возможность улучшить поиск в своей системе, если получать корень слова и искать уже по нему. В данном случае моя задача состояла сбор анкоров в СЕО системе, учитывая морфологию слов.\n";
        $preparedText = self::prepareText($text);
@@ -251,7 +258,8 @@ class ServiceDo {
     }
     public static function getStatisticForTexts ($texts = array(), $options = array()) {
         $opt = array(
-          'minStatCount' => 2,
+          'minStatCount'  => 2,   // Отсечение по минимальному кол-ву повторов слов
+          'maxCountWords' => 10,  // Кол-во слов которые попадают в конечный рейтинг
         );
         $opt = array_merge($opt, $options);
         if (count($texts) == 0) {
@@ -297,8 +305,8 @@ class ServiceDo {
             }
         }
 
-        $en_out = self::sortStatistic($en_out);
-        $ru_out = self::sortStatistic($ru_out);
+        $en_out = self::sortStatistic($en_out, true);
+        $ru_out = self::sortStatistic($ru_out, true);
 
         // Получение информации о частях речи
         // http://phpmorphy.sourceforge.net/dokuwiki/manual-graminfo
@@ -314,13 +322,29 @@ class ServiceDo {
             die('Error occured while creating phpMorphy instance: ' . $e->getMessage());
         }
 
+        // Фильтр на части речи
+        $en = $en_out;
+        $ru = array();
 
+        foreach ($ru_out as $w => $v) {
+          if (count($ru) <= $opt['maxCountWords'])
+          if (isset($ru_out[$w]['gram'])) {
+            foreach ($ru_out[$w]['gram'] as $gram) {
+              if (in_array($gram, array('С', /*'ИНФИНИТИВ',*/ 'ФРАЗ', 'Г'/*, 'Н'*/))) {
+                $ru[$w] = $ru_out[$w];
+                break;
+              }
+              //tool::clog($gram);
+            }
+          } else {
+            $ru[$w] = $ru_out[$w];
+          }
+        }
 
         $statistic = array(
-          'en' => $en_out,
-          'ru' => $ru_out,
+          'en' => $en,
+          'ru' => $ru,
         );
-
         // tool::clog($statistic);
         return $statistic;
     }
@@ -354,15 +378,17 @@ class ServiceDo {
            }
          }
        }
-       self::saveLinksToFile($links, 'data/texts.json');
+       self::saveDataToFile($links, 'data/texts.json');
        // */
 
        $links = self::getLinks('file', 'data/texts.json');
        //tool::clog($links);
        $statistic = self::getStatisticForTexts($links, array(
-         'minStatCount' => 10,
+           //'minStatCount'  => 2,   // Отсечение по минимальному кол-ву повторов слов
+           'maxCountWords' => 255,   // Кол-во слов которые попадают в конечный рейтинг
        ));
-       tool::clog($statistic);
+       self::saveDataToFile($statistic, 'data/statistic.json');
+       //tool::clog($statistic);
 
 
         //tool::clog($texts);
@@ -392,6 +418,7 @@ if (count($argv) > 1) {
     for ($i = 2; $i < count($argv); $i++) {
        $params[] = $argv[$i];
     }
+    tool::clog("Start service ....", 'green');
     call_user_func_array('ServiceDo::'.$argv[1], $params);
   } else {
     echo "Unknown method - '".$argv[1]."'\n";
