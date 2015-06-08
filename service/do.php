@@ -109,8 +109,23 @@ class ServiceDo {
              }
              break;
           }
+          case 'file': {
+            $links = json_decode(file_get_contents(__DIR__.'/../'.$options), true);
+            break;
+          }
       }
       return $links;
+    }
+
+    private static function saveLinksToFile($links, $fileName= 'content.json') {
+      $links = json_encode($links, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+      $filename = __DIR__.'/../'.$fileName;
+      if (!file_exists($filename)) {
+          //chmod($filename, 0777);
+      }
+      $fd = fopen($filename, "w");
+      fwrite($fd, $links.PHP_EOL);
+      fclose($fd);
     }
 
     private static function getContent($url) {
@@ -128,6 +143,9 @@ class ServiceDo {
       }
       return $content;
     }
+
+
+
 
     public static function morphyText() {
       require_once('lib/phpmorphy/src/common.php');
@@ -187,7 +205,7 @@ class ServiceDo {
             $morphyEN = new phpMorphy(__DIR__.'/lib/phpmorphy/dicts/en1', 'en_EN', array(
                 'storage' => PHPMORPHY_STORAGE_FILE,
             ));
-            $lemmasRU       = $morphyRU->getBaseForm($preparedText['ru']);
+            $lemmasRU       = $morphyRU->getBaseForm($preparedText['ru'], phpMorphy::IGNORE_PREDICT);
             foreach ($preparedText['ru'] as $word) {
                if (isset($lemmasRU[$word]) && count($lemmasRU[$word]) > 0) {
                    if (isset($ru[$lemmasRU[$word][0]])) {
@@ -199,7 +217,7 @@ class ServiceDo {
                    }
                }
            }
-           $lemmasEN  = $morphyEN->getBaseForm($preparedText['en']);
+           $lemmasEN  = $morphyEN->getBaseForm($preparedText['en'], phpMorphy::IGNORE_PREDICT);
            foreach ($preparedText['en'] as $word) {
                if (isset($lemmasEN[$word]) && count($lemmasEN[$word]) > 0) {
                    if (isset($en[$lemmasEN[$word][0]])) {
@@ -231,14 +249,31 @@ class ServiceDo {
       }
       return $s1;
     }
-    public static function getStatisticForTexts ($texts = array()) {
-        if (count($texts) == 0)
-        $texts = array(
-          "Назначение Михеила Саакашвили председателем Одесской ОГА привлекло внимание за рубежом. Об этом заявил президент Украины Петр Порошенко в ходе встречи с председателем Одесской ОГА Михеилом Саакашвили, сообщили в пресс-службе главы государства.",
-          "Почти 60 тонн сыра, который перевозился без необходимых документов, не пустили в Россию из Казахстана, сообщается на сайте Россельхознадзора.",
-          "Почти В Японии в результате падения 700-килограммового воздушного змея пострадали четыре человека, сообщает The Guardian.",
-          "Почти Атомная электростанция в Бушере заработала в 2011 г. при содействии РФ. Она была спроектирована так, что выдерживает землетрясение магнитудой 8.",
+    public static function getStatisticForTexts ($texts = array(), $options = array()) {
+        $opt = array(
+          'minStatCount' => 2,
         );
+        $opt = array_merge($opt, $options);
+        if (count($texts) == 0) {
+            $texts = array(
+                "Назначение Михеила Саакашвили председателем Одесской ОГА привлекло внимание за рубежом. Об этом заявил президент Украины Петр Порошенко в ходе встречи с председателем Одесской ОГА Михеилом Саакашвили, сообщили в пресс-службе главы государства.",
+                "Почти 60 тонн сыра, который перевозился без необходимых документов, не пустили в Россию из Казахстана, сообщается на сайте Россельхознадзора.",
+                "Почти В Японии в результате падения 700-килограммового воздушного змея пострадали четыре человека, сообщает The Guardian.",
+                "Почти Атомная электростанция в Бушере заработала в 2011 г. при содействии РФ. Она была спроектирована так, что выдерживает землетрясение магнитудой 8.",
+            );
+        }
+
+        // Если на входе комплексный массив данных
+        if (isset($texts[0]['text'])) {
+            $texts2 = array();
+            foreach ($texts as $text) {
+               $texts2[] = $text['text'];
+            }
+            $texts = $texts2;
+        }
+
+
+
         $ru = array();
         $en = array();
         foreach ($texts as $text) {
@@ -246,27 +281,47 @@ class ServiceDo {
           $ru = self::addStatistic($ru, $s['ru']);
           $en = self::addStatistic($en, $s['en']);
         }
-        $minStatCount = 2;
+
 
         $ru_out = array();
         foreach ($ru as $w => $v) {
-          if ($w !== '' && $v['count'] >= $minStatCount) {
+          if ($w !== '' && $v['count'] >= $opt['minStatCount']) {
             $ru_out[$w] = $v;
           }
         }
 
         $en_out = array();
         foreach ($en as $w => $v) {
-            if ($w !== '' && $v['count'] >= $minStatCount) {
+            if ($w !== '' && $v['count'] >= $opt['minStatCount']) {
                 $en_out[$w] = $v;
             }
         }
 
+        $en_out = self::sortStatistic($en_out);
+        $ru_out = self::sortStatistic($ru_out);
+
+        // Получение информации о частях речи
+        // http://phpmorphy.sourceforge.net/dokuwiki/manual-graminfo
+        require_once('lib/phpmorphy/src/common.php');
+        try {
+            $morphyRU = new phpMorphy(__DIR__.'/lib/phpmorphy/dicts/ru2', 'ru_RU', array(
+                'storage' => PHPMORPHY_STORAGE_FILE,
+            ));
+            foreach ($ru_out as $w => $v) {
+              $ru_out[$w]['gram'] = $morphyRU->getPartOfSpeech($w);
+            }
+        } catch(phpMorphy_Exception $e) {
+            die('Error occured while creating phpMorphy instance: ' . $e->getMessage());
+        }
+
+
+
         $statistic = array(
-          'en' => self::sortStatistic($en_out),
-          'ru' => self::sortStatistic($ru_out),
+          'en' => $en_out,
+          'ru' => $ru_out,
         );
-       // tool::clog($statistic);
+
+        // tool::clog($statistic);
         return $statistic;
     }
 
@@ -274,19 +329,48 @@ class ServiceDo {
     public static function run () {
        //$content = self::getContent('http://112.ua/ato/v-luganskoy-obl-na-mine-podorvalsya-traktor-voditel-ranen-mvd-234944.html');
        //tool::clog($content);
+
+       /*
        $links = self::getLinks();
        //tool::clog($links);
        $texts = array();
-       foreach ($links as $link) {
-         tool::clog($link['url']);
-         $texts[] = self::getContent($link['url']);
-         //tool::xlog('texts', $link['url']);
-         //tool::xlog('texts', self::getContent($link['url']));
+       $percent = 0;
+       $c = 0;
+       foreach ($links as &$link) {
+         // tool::clog($link);
+         // tool::clog($link['url']);
+         $text = self::getContent($link['url']);
+         $link['text'] = $text;
+         //$texts[] = $text;
+         $c++;
+         $dpercent = floor(($c/count($links))*100);
+         if ($dpercent > $percent) {
+           $percent = $dpercent;
+           tool::clog($percent.'%', '', false);
+           if ($percent < 100) {
+             tool::clog('...', '', false);
+           } else {
+             tool::clog('');
+           }
+         }
        }
-       //tool::clog($texts);
+       self::saveLinksToFile($links, 'data/texts.json');
+       // */
+
+       $links = self::getLinks('file', 'data/texts.json');
+       //tool::clog($links);
+       $statistic = self::getStatisticForTexts($links, array(
+         'minStatCount' => 10,
+       ));
+       tool::clog($statistic);
+
+
+        //tool::clog($texts);
+      /*
        $statistic = self::getStatisticForTexts($texts);
        tool::xlog('statistic', $statistic);
        tool::clog($statistic);
+      */
 
     }
 
@@ -301,7 +385,7 @@ class ServiceDo {
 
 
 // Start point
-//print_r($argv);
+// print_r($argv);
 if (count($argv) > 1) {
   if (method_exists('ServiceDo', $argv[1])) {
     $params = array();
@@ -314,34 +398,36 @@ if (count($argv) > 1) {
   }
 } else {
   $methods = get_class_methods(ServiceDo);
-  echo "Methods:\n";
+  //echo "Methods:\n";
+  tool::clog("\nMethods:", 'yellow');
   foreach ($methods as $method) {
-    echo $method;
+    //echo $method;
+    tool::clog("\n".$method, 'green', false);
     $r = new ReflectionMethod('ServiceDo', $method);
     $params = $r->getParameters();
     if (count($params) > 0) {
-        echo " (";
+        //echo " (";
+        tool::clog(" (", 'purple', false);
         $c = 1;
         foreach ($params as $param) {
-           echo (($param->isOptional())?"[":"").$param->getName().(($param->isOptional())?"]":"").(($c < count($params))?", ":"");
+           //echo (($param->isOptional())?"[":"").$param->getName().(($param->isOptional())?"]":"").(($c < count($params))?", ":"");
+           tool::clog((($param->isOptional())?"[":"").$param->getName().(($param->isOptional())?"]":"").(($c < count($params))?", ":""), 'cyan', false);
            $c++;
         }
-        echo ") ";
+        //echo ") ";
+        tool::clog(") ", 'purple', false);
     }
     if (property_exists(ServiceDo, $method)) {
-
-      //echo $method." - ".call_user_func('ServiceDo::d_'.$method)."\n";
-      echo " - ";
+      //echo " - ";
+      tool::clog(" - ", 'white', false);
       $vars = get_class_vars('ServiceDo');
       //echo $vars[$method];
-      tool::clog($vars[$method]);
+      tool::clog($vars[$method], 'white', false);
     }
     echo "\n";
 
 
   }
-
-
 }
 
 ?>

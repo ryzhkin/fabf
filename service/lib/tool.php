@@ -46,11 +46,26 @@ class tool {
     }
 
     // Output to console with reencoding
-    public static function clog($msg, $encoding = 'cp866') {
+    public static function clog($msg, $color="", $endLine = true, $encoding = 'cp866') {
       $msg = print_r($msg, true);
       $msg = mb_convert_encoding($msg, $encoding, 'utf-8');
+      $colors = array(
+        'red'      => '031',
+        'green'    => '032',
+        'white'    => '037',
+        'yellow'   => '033',
+        'blue'     => '034',
+        'purple'   => '035',
+        'cyan'     => '036',
+      );
+      if (isset($colors[$color])) {
+        echo "\033[".$colors[$color]."m";
+      }
       echo $msg;
-      echo "\n";
+      if (isset($colors[$color])) {
+        echo "\033[0m";
+      }
+      if ($endLine) echo "\n";
     }
 
 
