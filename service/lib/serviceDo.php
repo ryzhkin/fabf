@@ -331,7 +331,7 @@ class ServiceDo {
         tool::clog(' texts:'."\n", 'yellow');
 
         tool::clog('1) Get from 112.ua: ', 'yellow');
-        $maxPage = 1;
+        $maxPage = 20;
         $links = array();
         tool::clog('[1 - '.$maxPage.']', 'yellow');
         for ($p = 1; $p <= $maxPage; $p++) {
