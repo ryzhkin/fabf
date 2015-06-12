@@ -41,6 +41,9 @@ class ServiceDo {
                     }
                     $query = rtrim($query, '&');
                 }
+                if (isset($options['page'])) {
+                    $query .= (($query !== '')?'&':'').'page='.$options['page'];
+                }
                 if ($query !== '') {
                     $url .= '?'.$query;
                 }
@@ -79,13 +82,15 @@ class ServiceDo {
     }
 
     private static function getContent($url) {
-        require_once('lib/phpQuery/phpQuery/phpQuery.php');
+        require_once('phpQuery/phpQuery/phpQuery.php');
         $content = '';
         if (strpos($url, '112.ua') !== FALSE ) {
             $content = tool::getAuthHttpUrl($url);
             $doc = phpQuery::newDocument($content);
             $a = $doc->find('.article-text');
             pq($a)->find('.article-img')->remove();
+            pq($a)->find('.article-img__info')->remove();
+            pq($a)->find('.rsCaption')->remove();
             pq($a)->find('.article_attached')->remove();
             pq($a)->find('.flowplayer')->remove();
             pq($a)->find('p:contains("Ранее сообщалось")')->remove();
@@ -300,16 +305,47 @@ class ServiceDo {
     }
 
 
+    private static function isUniqueText ($list, $item, $samePercent = 80) {
+        foreach ($list as $item0) {
+           similar_text($item['text'], $item0['text'], $p);
+           if ($p >= $samePercent) {
+             return false;
+           }
+        }
+        return true;
+    }
+    private static function getUniqueTexts ($list, $samePercent = 80) {
+      $uniqueTexts = array();
+      foreach ($list as $item) {
+        if (self::isUniqueText($uniqueTexts, $item, $samePercent)) {
+            $uniqueTexts[] = $item;
+        }
+      }
+      return $uniqueTexts;
+    }
+
+
     private static function getTexts() {
         tool::clog('Get ', 'yellow', false);
         tool::clog('BAD', 'red', false);
         tool::clog(' texts:'."\n", 'yellow');
 
         tool::clog('1) Get from 112.ua: ', 'yellow');
+        $maxPage = 1;
+        $links = array();
+        tool::clog('[1 - '.$maxPage.']', 'yellow');
+        for ($p = 1; $p <= $maxPage; $p++) {
+            $ll = self::getLinks('112', array(
+                'category' => [7],
+                'page'     => $p,
+            ));
+            foreach ($ll as $l) {
+               $links[] = $l;
+            }
+            tool::clog($p.', ', 'green', false);
+        }
+        self::saveDataToFile($links, 'data/links_bad.json');
 
-        $links = self::getLinks('112', array(
-            'category' => [7]
-        ));
         $percent = 0;
         $c = 0;
         $start = time();
@@ -335,22 +371,26 @@ class ServiceDo {
                 }
             }
         }
+        $links = self::getUniqueTexts($links);
         self::saveDataToFile($links, 'data/texts_bad.json');
+        //*/
+
+        // http:\\112.ua/avarii-chp/v-kieve-na-troeshhine-prorvalo-truboprovod-iz-pod-zemli-bil-fontan-vysotoy-s-devyatietazhnyy-dom-236877.html
 
     }
 
     public static $run = "Запуск серверного кода системы";
     public static function run () {
-        // self::getTexts();
+        self::getTexts();
 
-        $links = self::getLinks('file', 'data/texts_bad.json');
+       /* $links = self::getLinks('file', 'data/texts_bad.json');
         //tool::clog($links);
         $statistic = self::getStatisticForTexts($links, array(
             //'minStatCount'  => 2,   // Отсечение по минимальному кол-ву повторов слов
             //'maxCountWords' => 255,   // Кол-во слов которые попадают в конечный рейтинг
         ));
         self::saveDataToFile($statistic, 'data/statistic_bad.json');
-        //tool::clog($statistic);
+        //tool::clog($statistic);*/
         //*/
 
 
