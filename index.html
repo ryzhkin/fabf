@@ -1,1 +1,27 @@
-FabF
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FABF project</title>
+    <link href="css/main.css" type="text/css" rel="stylesheet">
+    <script src="js/angular/angular.min.js"></script>
+    <script src="js/angular/angular-route.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/texts.js"></script>
+</head>
+<body ng-app="fabfApp">
+<p>1 + 2 = {{ 1 + 2 }}</p>
+<div class="container" ng-view>
+    <p>1 + 2 = {{ 1 + 2 }}</p>
+
+    <ul class="texts">
+        <li ng-repeat="text in texts | filter:query | orderBy:orderProp" class="thumbnail">
+            +++
+        </li>
+    </ul>
+
+</div>
+
+
+</body>
+</html>

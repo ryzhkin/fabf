@@ -63,22 +63,28 @@ class ServiceDo {
                 break;
             }
             case 'file': {
-                $links = json_decode(file_get_contents(__DIR__.'/../../'.$options), true);
+                //$links = json_decode(file_get_contents(__DIR__.'/../../'.$options), true);
+                $links = self::getDataFromFile($options);
                 break;
             }
         }
         return $links;
     }
 
-    private static function saveDataToFile($links, $fileName= 'content.json') {
-        $links = json_encode($links, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    private static function saveDataToFile($data, $fileName= 'content.json') {
+        $data = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $filename = __DIR__.'/../../'.$fileName;
         if (!file_exists($filename)) {
             //chmod($filename, 0777);
         }
         $fd = fopen($filename, "w");
-        fwrite($fd, $links.PHP_EOL);
+        fwrite($fd, $data.PHP_EOL);
         fclose($fd);
+    }
+
+    private static function getDataFromFile($fileName) {
+       $data = json_decode(file_get_contents(__DIR__.'/../../'.$fileName), true);
+       return $data;
     }
 
     private static function getContent($url) {
@@ -331,7 +337,7 @@ class ServiceDo {
         tool::clog(' texts:'."\n", 'yellow');
 
         tool::clog('1) Get from 112.ua: ', 'yellow');
-        $maxPage = 20;
+        $maxPage = 40;
         $links = array();
         tool::clog('[1 - '.$maxPage.']', 'yellow');
         for ($p = 1; $p <= $maxPage; $p++) {
@@ -345,7 +351,7 @@ class ServiceDo {
             tool::clog($p.', ', 'green', false);
         }
         self::saveDataToFile($links, 'data/links_bad.json');
-
+        tool::clog("\nDownload texts ...", 'yellow');
         $percent = 0;
         $c = 0;
         $start = time();
@@ -371,7 +377,7 @@ class ServiceDo {
                 }
             }
         }
-        $links = self::getUniqueTexts($links);
+        //$links = self::getUniqueTexts($links);
         self::saveDataToFile($links, 'data/texts_bad.json');
         //*/
 
@@ -381,13 +387,14 @@ class ServiceDo {
 
     public static $run = "Запуск серверного кода системы";
     public static function run () {
-        self::getTexts();
+        //self::getTexts();
 
-       /* $links = self::getLinks('file', 'data/texts_bad.json');
+        /*
+        $texts = self::getDataFromFile('data/texts_bad.json');
         //tool::clog($links);
-        $statistic = self::getStatisticForTexts($links, array(
+        $statistic = self::getStatisticForTexts($texts, array(
             //'minStatCount'  => 2,   // Отсечение по минимальному кол-ву повторов слов
-            //'maxCountWords' => 255,   // Кол-во слов которые попадают в конечный рейтинг
+            //'maxCountWords' => 255, // Кол-во слов которые попадают в конечный рейтинг
         ));
         self::saveDataToFile($statistic, 'data/statistic_bad.json');
         //tool::clog($statistic);*/
