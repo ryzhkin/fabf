@@ -3,3 +3,18 @@
     margin-left: auto;
     margin-right: auto;
 }
+
+.order {
+  cursor: pointer;
+  color: navy;
+}
+
+
+
+.order.up span:after {
+   content: " ￪";
+}
+
+.order.down span:after {
+   content: " ￬";
+}

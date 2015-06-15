@@ -1,9 +1,20 @@
-Texts list ...
-<p>1 + 2 = {{ 1 + 2 }}</p>
-
-
-<ul class="texts">
+<!--<ul class="texts">
     <li ng-repeat="text in texts | filter:query | orderBy:orderProp" class="thumbnail">
-      +++
+      {{text.date_time}}
     </li>
-</ul>
+</ul>-->
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <tr>
+          <th class="order {{(order?'up':'down')}}" ng-click="order = !order"><span>Дата</span></th>
+          <th>Текст</th>
+          <th>Действие</th>
+        </tr>
+        <tr ng-repeat="text in texts | filter:query | orderBy:'date_time':order">
+            <td>{{text.date_time | getDateTimeFromMySQL | date:'dd/MM/yyyy HH:mm'}}</td>
+            <td>{{text.text | limitTo : 255 }} ... </td>
+            <td></td>
+        </tr>
+    </table>
+</div>

@@ -1,8 +1,18 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>FABF project</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="js/bootstrap/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="js/bootstrap/css/bootstrap-theme.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="js/bootstrap/js/jquery-1.11.3.min.js"></script>
+    <script src="js/bootstrap/js/bootstrap.min.js"></script>
+
     <link href="css/main.css" type="text/css" rel="stylesheet">
     <script src="js/angular/angular.min.js"></script>
     <script src="js/angular/angular-route.min.js"></script>
@@ -10,18 +20,7 @@
     <script src="js/texts.js"></script>
 </head>
 <body ng-app="fabfApp">
-<p>1 + 2 = {{ 1 + 2 }}</p>
 <div class="container" ng-view>
-    <p>1 + 2 = {{ 1 + 2 }}</p>
-
-    <ul class="texts">
-        <li ng-repeat="text in texts | filter:query | orderBy:orderProp" class="thumbnail">
-            +++
-        </li>
-    </ul>
-
 </div>
-
-
 </body>
 </html>
