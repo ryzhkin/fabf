@@ -3,6 +3,7 @@ var texts = angular.module('texts', []);
 texts.controller('texts.list', ['$scope', '$http',
     function ($scope, $http) {
         $scope.texts = [];
+        $scope.pages = [];
         /*$http.get('data/texts_bad.json').success(function(data) {
           $scope.texts = data;
         });*/
