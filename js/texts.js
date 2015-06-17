@@ -3,9 +3,20 @@ var texts = angular.module('texts', []);
 texts.controller('texts.list', ['$scope', '$http',
     function ($scope, $http) {
         $scope.texts = [];
-        $http.get('data/texts_bad.json').success(function(data) {
+        /*$http.get('data/texts_bad.json').success(function(data) {
           $scope.texts = data;
-        });
+        });*/
+
+        $http.post('service/ajax.php', {
+            ajaxAction : 'getTexts',
+            page       : 1
+        }).
+            success(function(data, status, headers, config) {
+                console.log(data);
+                $scope.texts = data.texts;
+            }).
+            error(function(data, status, headers, config) {
+            });
         $scope.order = true;
     }]);
 

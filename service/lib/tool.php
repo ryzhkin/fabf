@@ -207,7 +207,19 @@ class tool {
        return str_ireplace ($ru_month, $en_month, $d);
     }
 
-
+    public static function isAjax() {
+        if (
+            (!empty( $_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') ||
+            ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') ||
+            !(strpos($_SERVER['CONTENT_TYPE'], 'application/json') === false) ||
+            !(strpos($_SERVER['HTTP_ACCEPT'], 'application/json') === false)
+        )
+        {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 // Init this tool
