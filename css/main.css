@@ -18,3 +18,14 @@
 .order.down span:after {
    content: " ￬";
 }
+
+.btn-hide {
+  display: block;
+}
+
+.short-text {
+  cursor: pointer;
+}
+.full-text {
+  display: none;
+}

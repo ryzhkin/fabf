@@ -1,7 +1,7 @@
 
 <div style="float: right; margin-left: 20px; margin-top: 30px;">
   <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix">
-    <button ng-click="getDataPage(p.page)" ng-repeat="p in pages" class="btn btn-xs {{p.class}}" role="button" style="display: block; margin-top: 5px; min-width: 30px;">{{p.page}}</button>
+    <button page="{{p.page}}" ng-click="getDataPage(p.page)" ng-repeat="p in pages" class="btn btn-xs {{p.class}}" role="button" style="display: {{((p.hide == true)?'none':'block')}}; margin-top: 5px; min-width: 30px;">{{p.page}}</button>
   </nav>
 </div>
 
@@ -16,7 +16,8 @@
         </tr>
         <tr ng-repeat="text in texts | filter:query | orderBy:'date_time':order">
             <td>{{text.date_time | getDateTimeFromMySQL | date:'dd/MM/yyyy HH:mm'}}</td>
-            <td>{{text.text | limitTo : 255 }} ... </td>
+            <td class="short-text" ng-click="showFullText($index)" index="{{$index}}">{{text.text | limitTo : 255 }} ... </td>
+            <td class="full-text" index="{{$index}}">{{text.text}}</td>
             <td></td>
         </tr>
     </table>
