@@ -12,6 +12,7 @@ texts.controller('texts.list', ['$scope', '$http',
 
 
         $scope.order = true;
+
         $scope.getDataPage = function(page) {
             $scope.page = page;
             $http.post('service/ajax.php', {
@@ -22,10 +23,16 @@ texts.controller('texts.list', ['$scope', '$http',
                     console.log(data);
                     $scope.texts = data.texts;
                     var countPage = Math.floor(data.count/data.pageSize);
-                    var minPage = data.page - Math.floor($scope.countNavPagesView - 1);
+                    var minPage = data.page - $scope.countNavPagesView + 5;
+                    //minPage = (((data.page % $scope.countNavPagesView) == 0)?(data.page - Math.floor($scope.countNavPagesView/2)):0);
                     minPage = ((minPage > 0)?minPage:1);
+
                     var maxPage = minPage + $scope.countNavPagesView;
                     maxPage = ((maxPage < countPage)?maxPage:countPage);
+
+
+
+
                     $scope.pages = [];
                     if (minPage > 1) {
                         $scope.pages.push({
