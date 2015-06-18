@@ -5,34 +5,54 @@ texts.controller('texts.list', ['$scope', '$http',
         $scope.texts = [];
         $scope.page = 1;
         $scope.pages = [];
-        $scope.countNavPagesView = 10;
+        $scope.countNavPagesView = 9;
         /*$http.get('data/texts_bad.json').success(function(data) {
           $scope.texts = data;
         });*/
 
-        $http.post('service/ajax.php', {
-            ajaxAction : 'getTexts',
-            page       : $scope.page
-        }).
-            success(function(data, status, headers, config) {
-                console.log(data);
-                $scope.texts = data.texts;
-                var countPage = Math.ceil(data.count/data.pageSize);
-                var minPage = data.page - Math.ceil($scope.countNavPagesView/2);
-                minPage = ((minPage > 0)?minPage:1);
-                var maxPage = minPage + $scope.countNavPagesView;
-                maxPage = ((maxPage < countPage)?maxPage:countPage);
-                for (var i = minPage; i < maxPage; i++) {
-                  $scope.pages.push({
-                    page:   i,
-                    active: (data.page == i)
-                  });
-                }
-                console.log($scope.pages);
-            }).
-            error(function(data, status, headers, config) {
-            });
+
         $scope.order = true;
+        $scope.getDataPage = function(page) {
+            $scope.page = page;
+            $http.post('service/ajax.php', {
+                ajaxAction : 'getTexts',
+                page       : $scope.page
+            }).
+                success(function(data, status, headers, config) {
+                    console.log(data);
+                    $scope.texts = data.texts;
+                    var countPage = Math.floor(data.count/data.pageSize);
+                    var minPage = data.page - Math.floor($scope.countNavPagesView - 1);
+                    minPage = ((minPage > 0)?minPage:1);
+                    var maxPage = minPage + $scope.countNavPagesView;
+                    maxPage = ((maxPage < countPage)?maxPage:countPage);
+                    $scope.pages = [];
+                    if (minPage > 1) {
+                        $scope.pages.push({
+                            page:   1,
+                            class:  'btn-primary'
+                        });
+                    }
+                    for (var i = minPage; i <= maxPage; i++) {
+                        $scope.pages.push({
+                            page:   i,
+                            class: (data.page == i)?'btn-success':'btn-default'
+                        });
+                    }
+                    if (maxPage < countPage) {
+                        $scope.pages.push({
+                            page:   countPage,
+                            class:  'btn-primary'
+                        });
+                    }
+                    console.log($scope.pages);
+                }).
+                error(function(data, status, headers, config) {
+                });
+        };
+        $scope.getDataPage(1);
+
+
     }]);
 
 texts.filter('getDateTimeFromMySQL', function() {
