@@ -4,6 +4,7 @@ texts.controller('texts.list', ['$scope', '$http',
     function ($scope, $http) {
         $scope.texts = [];
         $scope.pages = [];
+        $scope.countNavPagesView = 10;
         /*$http.get('data/texts_bad.json').success(function(data) {
           $scope.texts = data;
         });*/
@@ -15,6 +16,15 @@ texts.controller('texts.list', ['$scope', '$http',
             success(function(data, status, headers, config) {
                 console.log(data);
                 $scope.texts = data.texts;
+                var countPage = Math.ceil(data.count/data.pageSize);
+                var minPage = data.page - Math.ceil($scope.countNavPagesView/2);
+                minPage = ((minPage > 0)?minPage:1);
+                var maxPage = countPage + Math.ceil($scope.countNavPagesView/2);
+                maxPage = ((maxPage < countPage)?maxPage:countPage);
+                for (var i = minPage; i <= maxPage; i++) {
+                  $scope.pages.push(i);
+                }
+                console.log($scope.pages);
             }).
             error(function(data, status, headers, config) {
             });
