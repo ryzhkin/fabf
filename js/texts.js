@@ -3,6 +3,7 @@ var texts = angular.module('texts', []);
 texts.controller('texts.list', ['$scope', '$http',
     function ($scope, $http) {
         $scope.texts = [];
+        $scope.page = 1;
         $scope.pages = [];
         $scope.countNavPagesView = 10;
         /*$http.get('data/texts_bad.json').success(function(data) {
@@ -11,7 +12,7 @@ texts.controller('texts.list', ['$scope', '$http',
 
         $http.post('service/ajax.php', {
             ajaxAction : 'getTexts',
-            page       : 1
+            page       : $scope.page
         }).
             success(function(data, status, headers, config) {
                 console.log(data);
@@ -19,10 +20,13 @@ texts.controller('texts.list', ['$scope', '$http',
                 var countPage = Math.ceil(data.count/data.pageSize);
                 var minPage = data.page - Math.ceil($scope.countNavPagesView/2);
                 minPage = ((minPage > 0)?minPage:1);
-                var maxPage = countPage + Math.ceil($scope.countNavPagesView/2);
+                var maxPage = minPage + $scope.countNavPagesView;
                 maxPage = ((maxPage < countPage)?maxPage:countPage);
-                for (var i = minPage; i <= maxPage; i++) {
-                  $scope.pages.push(i);
+                for (var i = minPage; i < maxPage; i++) {
+                  $scope.pages.push({
+                    page:   i,
+                    active: (data.page == i)
+                  });
                 }
                 console.log($scope.pages);
             }).

@@ -1,11 +1,7 @@
 
 <div style="float: right; margin-left: 20px; margin-top: 30px;">
     <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix">
-        <button  class="btn btn-default" role="button" style="display: block; margin-top: 5px;">F</button>
-        <button  class="btn btn-default" role="button" style="display: block; margin-top: 5px;">1</button>
-        ...
-        <button  class="btn btn-default" role="button" style="display: block; margin-top: 5px;">2</button>
-        <button  class="btn btn-default" role="button" style="display: block; margin-top: 5px;">L</button>
+        <button   ng-click="page=3" ng-repeat="p in pages" class="btn btn-xs {{p.active?'btn-success':'btn-default'}}" role="button" style="display: block; margin-top: 5px; min-width: 30px;">{{p.page}}</button>
     </nav>
 </div>
 
