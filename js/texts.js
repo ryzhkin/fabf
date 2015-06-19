@@ -19,7 +19,7 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
           jQuery('.short-text').show();
           jQuery('.full-text').hide();
           jQuery('.short-text[index=' + index + ']').hide();
-          jQuery('.full-text[index=' + index + ']').slideDown();
+          jQuery('.full-text[index=' + index + ']').show();
         }
 
         $scope.getDataPage = function(page) {
