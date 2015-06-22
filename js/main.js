@@ -6,7 +6,7 @@ var fabfApp = angular.module('fabfApp', [
 fabfApp.config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.
-            when('/texts/:page', {
+            when('/texts/:page/:date', {
                 templateUrl    : 'partials/texts-list.html',
                 controller     : 'texts.list',
                 reloadOnSearch : false
@@ -16,7 +16,7 @@ fabfApp.config(['$routeProvider',
                 controller: 'TextsDetailCtrl'
             }).*/
             otherwise({
-                redirectTo: '/texts/1'
+                redirectTo: '/texts/1/' + moment().format('YYYY-MM-DD')
             });
     }]);
 

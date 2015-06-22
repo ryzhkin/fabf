@@ -1,7 +1,13 @@
 
+<div style="float: left; margin-right: 100px; margin-top: 30px;">
+    <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix">
+       <button date="{{d.date}}" ng-repeat="d in dates" class="btn btn-xs btn-default {{d.class}}" style="display: block; margin-top: 5px;">{{d.date | getDateTimeFromMySQL | date:'dd/MM/yyyy'}}</button>
+    </nav>
+</div>
+
 <div style="float: right; margin-left: 20px; margin-top: 30px;">
   <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix">
-    <button page="{{p.page}}" ng-click="getDataPage(p.page)" ng-repeat="p in pages" class="btn btn-xs {{p.class}}" role="button" style="display: {{((p.hide == true)?'none':'block')}}; margin-top: 5px; min-width: 30px;">{{p.page}}</button>
+    <button page="{{p.page}}" ng-click="getData(p.page, date)" ng-repeat="p in pages" class="btn btn-xs {{p.class}}" role="button" style="display: {{((p.hide == true)?'none':'block')}}; margin-top: 5px; min-width: 30px;">{{p.page}}</button>
   </nav>
 </div>
 

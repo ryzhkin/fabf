@@ -16,11 +16,22 @@
             $texts = file_get_contents(__DIR__.'/../data/texts_bad.json');
             $texts = json_decode($texts, true);
             $result['count'] =  count($texts);
+
+            // Получаем список дат
+            $dates = array();
+            foreach ($texts as $t) {
+              $dates[] = date("Y-m-d", strtotime($t['date_time']) );
+            }
+            $dates = array_values(array_unique($dates));
+            //tool::xlog('dates', $dates);
+
+            // Получаем страницу данных
             $out_texts = array();
             for ($i = ($page-1)*$pageSize; $i < $page*$pageSize; $i++) {
               $out_texts[] = $texts[$i];
             }
             $result['texts'] =  $out_texts;
+            $result['dates'] =  $dates;
             break;
           }
       }

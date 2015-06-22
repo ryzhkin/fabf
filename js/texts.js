@@ -4,8 +4,11 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
     function ($scope, $http, $location, $routeParams) {
         $scope.texts = [];
         $scope.page = $routeParams.page;
+        $scope.date = $routeParams.date;
         $scope.pages = [];
+        $scope.dates = [];
         $scope.countNavPagesView = 9;
+        $scope.countNavDatesView = 9;
         /*$http.get('data/texts_bad.json').success(function(data) {
           $scope.texts = data;
         });*/
@@ -22,16 +25,24 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
           jQuery('.full-text[index=' + index + ']').show();
         }
 
-        $scope.getDataPage = function(page) {
-            $location.path('/texts/' + page, false);
-            $scope.page = page;
+
+        $scope.getData = function (page, data) {
+          $scope.page = page;
+          $scope.date = data;
+          $location.path('/texts/' + $scope.page + '/' + $scope.date, false);
+          $scope.getDataPage();
+        }
+
+        $scope.getDataPage = function() {
             $http.post('service/ajax.php', {
                 ajaxAction : 'getTexts',
-                page       : $scope.page
+                page       : $scope.page,
+                data       : $scope.data
             }).
                 success(function(data, status, headers, config) {
                     //console.log(data);
                     $scope.texts = data.texts;
+
                     var countPage = Math.floor(data.count/data.pageSize);
 
 
@@ -55,6 +66,22 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
                             class: (data.page == i)?'btn-success':'btn-default'
                         });
                     }
+
+                    var minDateIndex = 0;
+                    var maxDateIndex = $scope.countNavDatesView;
+                    $scope.dates = [];
+                    for (var i = minDateIndex; i <= maxDateIndex; i++) {
+                      //data.dates;
+                      $scope.dates.push({
+                        date  : data.dates[i],
+                        class : ''             //(data.page == i)?'btn-success':'btn-default'
+                      });
+                    }
+
+
+
+
+
 
                     /*
                     if (data.page == maxPage) {
@@ -106,15 +133,17 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
                 error(function(data, status, headers, config) {
                 });
         };
-        $scope.getDataPage($scope.page);
-
-
+        $scope.getDataPage();
     }]);
 
 texts.filter('getDateTimeFromMySQL', function() {
     return function(input) {
         var t = input.split(/[- :]/);
-        var d = new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
+        if (t.length >=6 ) {
+          var d = new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
+        } else {
+          var d = new Date(t[0], t[1]-1, t[2]);
+        }
         return d.getTime();
     };
 });
