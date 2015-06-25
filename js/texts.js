@@ -37,7 +37,7 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
             $http.post('service/ajax.php', {
                 ajaxAction : 'getTexts',
                 page       : $scope.page,
-                data       : $scope.data
+                date       : $scope.date
             }).
                 success(function(data, status, headers, config) {
                     //console.log(data);
@@ -70,16 +70,18 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
                     var minDateIndex = 0;
                     var maxDateIndex = $scope.countNavDatesView;
                     $scope.dates = [];
+                    $scope.dates.push({
+                        date:   '*',
+                        class:  'btn-primary'
+                    });
                     for (var i = minDateIndex; i <= maxDateIndex; i++) {
                       //data.dates;
                       $scope.dates.push({
                         date  : data.dates[i],
                         class : ''             //(data.page == i)?'btn-success':'btn-default'
+
                       });
                     }
-
-
-
 
 
 
@@ -133,6 +135,7 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
                 error(function(data, status, headers, config) {
                 });
         };
+
         $scope.getDataPage();
     }]);
 

@@ -16,7 +16,8 @@ fabfApp.config(['$routeProvider',
                 controller: 'TextsDetailCtrl'
             }).*/
             otherwise({
-                redirectTo: '/texts/1/' + moment().format('YYYY-MM-DD')
+               // redirectTo: '/texts/1/' + moment().format('YYYY-MM-DD')
+                redirectTo: '/texts/1/*'
             });
     }]);
 

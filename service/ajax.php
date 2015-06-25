@@ -9,13 +9,14 @@
     if (isset($params['ajaxAction'])) {
       switch ($params['ajaxAction']) {
           case 'getTexts': {
+            $date     = ((isset($params['date']))?$params['date']:'*');
             $page     = ((isset($params['page']))?$params['page']:1);
             $pageSize = ((isset($params['pageSize']))?$params['pageSize']:20);
             $result['page']     = $page;
             $result['pageSize'] = $pageSize;
             $texts = file_get_contents(__DIR__.'/../data/texts_bad.json');
             $texts = json_decode($texts, true);
-            $result['count'] =  count($texts);
+
 
             // Получаем список дат
             $dates = array();
@@ -25,10 +26,22 @@
             $dates = array_values(array_unique($dates));
             //tool::xlog('dates', $dates);
 
-            // Получаем страницу данных
+            $filter_texts = array();
+            if ($date !== '*') {
+              foreach ($texts as $t) {
+                if (isset($t['date_time']) && ($date == date("Y-m-d", strtotime($t['date_time'])) ) ) {
+                  $filter_texts[] = $t;
+                }
+              }
+            } else {
+              $filter_texts = $texts;
+            }
+            $result['count'] =  count($filter_texts);
+
+              // Получаем страницу данных
             $out_texts = array();
-            for ($i = ($page-1)*$pageSize; $i < $page*$pageSize; $i++) {
-              $out_texts[] = $texts[$i];
+            for ($i = ($page-1)*$pageSize; ($i < $page*$pageSize) && ($i < count($filter_texts)); $i++) {
+              $out_texts[] = $filter_texts[$i];
             }
             $result['texts'] =  $out_texts;
             $result['dates'] =  $dates;
