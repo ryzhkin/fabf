@@ -18,11 +18,20 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
 
 
         $scope.showFullText = function (index) {
-          //console.log(index);
+          jQuery('tr').removeClass('fabf-row-active');
+          //console.log(jQuery('.short-text[index=' + index + ']').parent());
+          jQuery('.short-text[index=' + index + ']').parent().addClass('fabf-row-active');
+
+
           jQuery('.short-text').show();
           jQuery('.full-text').hide();
           jQuery('.short-text[index=' + index + ']').hide();
           jQuery('.full-text[index=' + index + ']').show();
+
+          jQuery('html, body').animate({
+            scrollTop:  jQuery('.short-text[index=' + index + ']').parent().offset().top - 38
+          }, 500);
+
         }
 
 
