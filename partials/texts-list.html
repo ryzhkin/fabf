@@ -1,7 +1,7 @@
 
 <div style="float: left; margin-right: 100px; margin-top: 30px;">
     <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix">
-       <button date="{{d.date}}" ng-click="getData(1, d.date)" ng-repeat="d in dates" class="btn btn-xs btn-default {{d.class}}" style="display: block; margin-top: 5px; min-width: 74px;">{{(d.date == '*')?'Все':(d.date | getDateTimeFromMySQL | date:'dd/MM/yyyy')}}</button>
+       <button date="{{d.date}}" ng-click="getData(1, d.date)" ng-repeat="d in dates" class="btn btn-xs {{d.class}}" style="display: block; margin-top: 5px; min-width: 74px;">{{(d.date == '*')?'Все':(d.date | getDateTimeFromMySQL | date:'dd/MM/yyyy')}}</button>
     </nav>
 </div>
 

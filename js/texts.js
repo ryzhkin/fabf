@@ -66,21 +66,34 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
                             class: (data.page == i)?'btn-success':'btn-default'
                         });
                     }
+                    if (maxPage < countPage) {
+                        $scope.pages.push({
+                            page:   countPage,
+                            class:  'btn-primary'
+                        });
+                    }
 
-                    var minDateIndex = 0;
-                    var maxDateIndex = $scope.countNavDatesView;
+
+                    var minDateIndex = data.dates.indexOf(data.date) - Math.floor($scope.countNavDatesView/2);;
+                    minDateIndex = (minDateIndex >= 0)?minDateIndex:0;
+                    var maxDateIndex = minDateIndex + $scope.countNavDatesView;
+                    maxDateIndex = ((maxDateIndex < data.dates.length)?maxDateIndex:(data.dates.length-1));
                     $scope.dates = [];
                     $scope.dates.push({
                         date:   '*',
-                        class:  'btn-primary'
+                        class:  (data.date == '*')?'btn-success':'btn-primary'
                     });
                     for (var i = minDateIndex; i <= maxDateIndex; i++) {
-                      //data.dates;
                       $scope.dates.push({
-                        date  : data.dates[i],
-                        class : ''             //(data.page == i)?'btn-success':'btn-default'
-
+                        date  :  data.dates[i],
+                        class : (data.date == data.dates[i])?'btn-success':'btn-default'
                       });
+                    }
+                    if (maxDateIndex < data.dates.length-1) {
+                        $scope.dates.push({
+                            date  :  data.dates[data.dates.length - 1],
+                            class :  'btn-primary'
+                        });
                     }
 
 
@@ -124,12 +137,7 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
                     }
                     //*/
 
-                    if (maxPage < countPage) {
-                        $scope.pages.push({
-                            page:   countPage,
-                            class:  'btn-primary'
-                        });
-                    }
+
                     //console.log($scope.pages);
                 }).
                 error(function(data, status, headers, config) {

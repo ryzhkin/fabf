@@ -45,6 +45,7 @@
             }
             $result['texts'] =  $out_texts;
             $result['dates'] =  $dates;
+            $result['date']  =  $date;
             break;
           }
       }
