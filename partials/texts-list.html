@@ -14,12 +14,14 @@
 
 
 <div class="table-responsive">
-    <table class="table table-hover">
-        <tr>
-          <th class="order {{(order?'up':'down')}}" ng-click="order = !order"><span>Дата</span></th>
-          <th>Текст</th>
-          <th>Действие</th>
-        </tr>
+    <table class="table table-hover" style="margin-top: 37px;">
+
+          <tr class="fabf-table-head" style="">
+            <th class="order {{(order?'up':'down')}}" ng-click="order = !order"><span>Дата</span></th>
+            <th>Текст</th>
+            <th>Действие</th>
+          </tr>
+
         <tr ng-repeat="text in texts | filter:query | orderBy:'date_time':order">
             <td>{{text.date_time | getDateTimeFromMySQL | date:'dd/MM/yyyy HH:mm'}}</td>
             <td class="short-text" ng-click="showFullText($index)" index="{{$index}}">{{text.text | limitTo : 255 }} ... </td>

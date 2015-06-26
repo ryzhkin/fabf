@@ -29,3 +29,18 @@
 .full-text {
   display: none;
 }
+
+.fabf-table-head {
+  background-color: white;
+}
+
+.fabf-table-head tr {
+  width    : 100%;
+}
+
+.fabf-table-head-fixed {
+  position : fixed;
+  width    : 715px;
+  height   : 37px;
+  top      : 0;
+}

@@ -137,6 +137,19 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
                     }
                     //*/
 
+                    setTimeout(function () {
+                        jQuery('.fabf-table-head th').each(function () {
+                            //  console.log(jQuery(this).outerWidth());
+                            jQuery(this).outerWidth(jQuery(this).outerWidth());
+                        });
+                        jQuery('.fabf-table-head').addClass('fabf-table-head-fixed');
+
+                        /*jQuery('.fabf-table-head').css({
+                            position : 'fixed'
+                        });*/
+                    }, 0);
+                    //*/
+
 
                     //console.log($scope.pages);
                 }).
