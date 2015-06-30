@@ -25,12 +25,15 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
 
           jQuery('.short-text').show();
           jQuery('.full-text').hide();
-          jQuery('.short-text[index=' + index + ']').hide();
-          jQuery('.full-text[index=' + index + ']').show();
+
 
           jQuery('html, body').animate({
-            scrollTop:  jQuery('.short-text[index=' + index + ']').parent().offset().top - 38
-          }, 500);
+            scrollTop:  jQuery('.short-text[index=' + index + ']').parent().offset().top - 85
+          }, 500, function() {
+              // Animation complete.
+              jQuery('.short-text[index=' + index + ']').hide();
+              jQuery('.full-text[index=' + index + ']').show();
+          });
 
         }
 

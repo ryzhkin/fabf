@@ -28,6 +28,7 @@
 }
 .full-text {
   display: none;
+  text-align: justify;
 }
 
 .fabf-table-head {
@@ -38,11 +39,27 @@
   width    : 100%;
 }
 
+.fabf-navbar {
+    padding: 0;
+    height   : 48px;
+}
+
+.fabf-navbar nav.navbar {
+    position : fixed;
+    width    : 900px;
+    height   : 48px;
+}
+
 .fabf-table-head-fixed {
   position : fixed;
   width    : 715px;
   height   : 37px;
-  top      : 0;
+  top      : 50px;
+  border-bottom: 1px solid #ddd;
+}
+
+.fabf-table-head-fixed th {
+  border   : none !important;
 }
 
 .fabf-row-active {
