@@ -1,5 +1,7 @@
 <?php
   include_once "lib/tool.php";
+  include_once "lib/serviceDo.php";
+
   if (tool::isAjax()) {
     $params = json_decode(file_get_contents("php://input"), true);
     //tool::xlog('ajax', $params);
@@ -8,7 +10,7 @@
     );
     if (isset($params['ajaxAction'])) {
       switch ($params['ajaxAction']) {
-          case 'getTexts': {
+         case 'getTexts'   : {
             $date     = ((isset($params['date']))?$params['date']:'*');
             $page     = ((isset($params['page']))?$params['page']:1);
             $pageSize = ((isset($params['pageSize']))?$params['pageSize']:20);
@@ -48,6 +50,10 @@
             $result['date']  =  $date;
             break;
           }
+         case 'getTextStat': {
+            $text  = ((isset($params['text']))?$params['text']:'');
+            $result['stat'] = ServiceDo::getStatisticForTexts([$text]);
+         }
       }
 
 

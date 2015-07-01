@@ -25,8 +25,10 @@
         <tr ng-repeat="text in texts | filter:query | orderBy:'date_time':order">
             <td>{{text.date_time | getDateTimeFromMySQL | date:'dd/MM/yyyy HH:mm'}}</td>
             <td class="short-text" ng-click="showFullText($index)" index="{{$index}}">{{text.text | limitTo : 255 }} ... </td>
-            <td class="full-text" index="{{$index}}">{{text.text}}</td>
-            <td></td>
+            <td class="full-text" index="{{$index}}" ng-click="hideFullText($index)">{{text.text}}</td>
+            <td>
+               <button class="btn btn-xs btn-info" style=""  ng-click="getTextStat(text.text)">Статистика</button>
+            </td>
         </tr>
     </table>
 </div>

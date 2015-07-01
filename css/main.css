@@ -29,6 +29,7 @@
 .full-text {
   display: none;
   text-align: justify;
+  cursor: pointer;
 }
 
 .fabf-table-head {

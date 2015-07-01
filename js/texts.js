@@ -37,6 +37,24 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
 
         }
 
+        $scope.hideFullText = function (index) {
+          jQuery('.short-text[index=' + index + ']').show();
+          jQuery('.full-text[index=' + index + ']').hide();
+        }
+
+        $scope.getTextStat = function (text) {
+            //console.log(text);
+            $http.post('service/ajax.php', {
+              ajaxAction : 'getTextStat',
+              text       : text
+            }).
+            success(function(data, status, headers, config) {
+              console.log(data);
+            }).
+            error(function(data, status, headers, config) {
+
+            });
+        }
 
         $scope.getData = function (page, data) {
           $scope.page = page;
