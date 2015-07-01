@@ -42,14 +42,25 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
           jQuery('.full-text[index=' + index + ']').hide();
         }
 
-        $scope.getTextStat = function (text) {
+        $scope.getTextStat = function (text, index) {
             //console.log(text);
+            jQuery('.ajax-loader[index=' + index + ']').show();
             $http.post('service/ajax.php', {
               ajaxAction : 'getTextStat',
               text       : text
             }).
             success(function(data, status, headers, config) {
+              jQuery('.ajax-loader[index=' + index + ']').hide();
               console.log(data);
+              $scope.texts[index].stat = [];
+              for (var s in data.stat.ru) {
+                console.log(s);
+                $scope.texts[index].stat.push({
+                  word: s,
+                  count: data.stat.ru[s].count
+                });
+              }
+
             }).
             error(function(data, status, headers, config) {
 
