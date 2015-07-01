@@ -51,10 +51,10 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
             }).
             success(function(data, status, headers, config) {
               jQuery('.ajax-loader[index=' + index + ']').hide();
-              console.log(data);
+              //console.log(data);
               $scope.texts[index].stat = [];
               for (var s in data.stat.ru) {
-                console.log(s);
+                //console.log(s);
                 $scope.texts[index].stat.push({
                   word: s,
                   count: data.stat.ru[s].count
