@@ -45,6 +45,18 @@
     height   : 48px;
 }
 
+.fabf-navbar-right {
+   text-align  : right;
+   height      : 48px;
+   line-height : 48px;
+}
+
+.fabf-navbar-right input[name="daterange"] {
+    height      : 40px;
+    width       : 170px;
+    border      : none;
+}
+
 .fabf-navbar nav.navbar {
     position : fixed;
     width    : 900px;
@@ -66,3 +78,4 @@
 .fabf-row-active {
   background-color: #F5F5F5;
 }
+

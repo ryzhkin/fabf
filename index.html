@@ -14,6 +14,9 @@
     <script src="js/bootstrap/js/bootstrap.min.js"></script>
     <script src="js/moment/moment-with-locales.min.js"></script>
 
+    <script type="text/javascript" src="js/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="js/bootstrap-daterangepicker/daterangepicker-bs3.css" />
+
     <link href="css/main.css" type="text/css" rel="stylesheet">
     <script src="js/angular/angular.min.js"></script>
     <script src="js/angular/angular-route.min.js"></script>
@@ -32,6 +35,9 @@
                     <a href="#{{m.path}}">{{m.title}}</a>
                 </li>
             </ul>
+            <div class="fabf-navbar-right">
+                <input type="text" name="daterange" value="01/01/2015 - 01/31/2015" />
+            </div>
         </div>
     </div>
   </nav>

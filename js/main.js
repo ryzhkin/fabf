@@ -33,7 +33,7 @@ fabfApp.controller('NavigatorController', ['$scope', '$location', function($scop
     $scope.menu = [
         {
           title : 'Тексты',
-          path  : '/texts/1/*',
+          path  : '/texts',
           class : 'active'
         },
         {
@@ -43,7 +43,7 @@ fabfApp.controller('NavigatorController', ['$scope', '$location', function($scop
     ];
     $scope.$on('$routeChangeSuccess', function() {
       for (var i = 0; i < $scope.menu.length; i++) {
-         if ($scope.menu[i].path == $location.path()) {
+         if ($location.path().indexOf($scope.menu[i].path) !== -1) {
            $scope.menu[i].class = 'active';
          } else {
            $scope.menu[i].class = '';
@@ -67,3 +67,23 @@ fabfApp.run(['$route', '$rootScope', '$location', function ($route, $rootScope, 
         return original.apply($location, [path]);
     };
 }]);
+
+
+// For init standart jQuery components
+$(function() {
+
+    // http://www.daterangepicker.com/#options
+    $('input[name="daterange"]').daterangepicker({
+        opens  : 'right',
+        locale : {
+            applyLabel: 'Submit',
+            cancelLabel: 'Cancel',
+            fromLabel: 'From',
+            toLabel: 'To',
+            customRangeLabel: 'Custom',
+            daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr','Sa'],
+            monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            firstDay: 1
+        }
+    });
+});
