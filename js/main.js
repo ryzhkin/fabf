@@ -66,30 +66,45 @@ fabfApp.run(['$route', '$rootScope', '$location', function ($route, $rootScope, 
         }
         return original.apply($location, [path]);
     };
+
+    // http://www.daterangepicker.com/#options
+    $('input[name="daterange"]').daterangepicker({
+        opens  : 'right',
+        format : 'DD/MM/YYYY',
+        locale : {
+            applyLabel       : 'Submit',
+            cancelLabel      : 'Cancel',
+            fromLabel        : 'From',
+            toLabel          : 'To',
+            customRangeLabel : 'Custom',
+            daysOfWeek       : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr','Sa'],
+            monthNames       : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            firstDay         : 1
+        }
+    });
+    /*$('input[name="daterange"]').on('change', function (ev) {
+        console.log('test');
+    });*/
+    $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
+        //console.log(picker.startDate.format('YYYY-MM-DD'));
+        //console.log(picker.endDate.format('YYYY-MM-DD'));
+        //console.log(angular.element($('.main')).scope().page);
+        //console.log($location);
+        $rootScope.$apply(function() {
+           angular.element($('.main')).scope().page = 1;
+           angular.element($('.main')).scope().date = picker.startDate.format('YYYY-MM-DD') + '@' + picker.endDate.format('YYYY-MM-DD');
+           $location.path('/texts/1/' + picker.startDate.format('YYYY-MM-DD') + '@' + picker.endDate.format('YYYY-MM-DD'), false);
+           angular.element($('.main')).scope().getDataPage();
+        });
+        // document.location.hash = '/texts/1/' + picker.startDate.format('YYYY-MM-DD') + '@' + picker.endDate.format('YYYY-MM-DD');
+    });
+
+
+
 }]);
 
 
 // For init standart jQuery components
 $(function() {
-
-    // http://www.daterangepicker.com/#options
-    $('input[name="daterange"]').daterangepicker({
-        opens  : 'right',
-        format: 'DD/MM/YYYY',
-        locale : {
-            applyLabel: 'Submit',
-            cancelLabel: 'Cancel',
-            fromLabel: 'From',
-            toLabel: 'To',
-            customRangeLabel: 'Custom',
-            daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr','Sa'],
-            monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            firstDay: 1
-        }
-    });
-
-    /*$('input[name="daterange"]').on('change', function (ev) {
-       console.log('test');
-    });*/
 
 });

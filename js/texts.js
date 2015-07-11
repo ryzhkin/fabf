@@ -85,9 +85,14 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
 
                     // console.log(data.minDate);
                     // console.log(data.maxDate);
+                    if (typeof(data.period) !== 'undefined') {
+                      $('input[name="daterange"]').data('daterangepicker').setStartDate(moment(data.period.startDate));
+                      $('input[name="daterange"]').data('daterangepicker').setEndDate(moment(data.period.endDate));
+                    } else {
+                      $('input[name="daterange"]').data('daterangepicker').setStartDate(moment(data.minDate));
+                      $('input[name="daterange"]').data('daterangepicker').setEndDate(moment(data.maxDate));
+                    }
 
-                    $('input[name="daterange"]').data('daterangepicker').setStartDate(moment(data.minDate));
-                    $('input[name="daterange"]').data('daterangepicker').setEndDate(moment(data.maxDate));
 
 
                     $scope.texts = data.texts;
