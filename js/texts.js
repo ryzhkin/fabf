@@ -81,7 +81,15 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
                 date       : $scope.date
             }).
                 success(function(data, status, headers, config) {
-                    //console.log(data);
+                    console.log(data);
+
+                    // console.log(data.minDate);
+                    // console.log(data.maxDate);
+
+                    $('input[name="daterange"]').data('daterangepicker').setStartDate(moment(data.minDate));
+                    $('input[name="daterange"]').data('daterangepicker').setEndDate(moment(data.maxDate));
+
+
                     $scope.texts = data.texts;
 
                     var countPage = Math.floor(data.count/data.pageSize);

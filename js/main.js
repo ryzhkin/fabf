@@ -75,6 +75,7 @@ $(function() {
     // http://www.daterangepicker.com/#options
     $('input[name="daterange"]').daterangepicker({
         opens  : 'right',
+        format: 'DD/MM/YYYY',
         locale : {
             applyLabel: 'Submit',
             cancelLabel: 'Cancel',
@@ -86,4 +87,9 @@ $(function() {
             firstDay: 1
         }
     });
+
+    /*$('input[name="daterange"]').on('change', function (ev) {
+       console.log('test');
+    });*/
+
 });

@@ -19,6 +19,20 @@
             $texts = file_get_contents(__DIR__.'/../data/texts_bad.json');
             $texts = json_decode($texts, true);
 
+            // Проверяем на входе период дат или нет
+            $periodDate = explode('@', $date);
+            if (count($periodDate) > 1) {
+              $startDate  = $periodDate[0];
+              $endDate    = $periodDate[1];
+              if (strtotime($startDate) > strtotime($endDate)) {
+                $t = $startDate;
+                $startDate = $endDate;
+                $endDate = $t;
+              }
+              $result['period']['startDate'] = $startDate;
+              $result['period']['endDate']   = $endDate;
+            }
+
 
             // Получаем список дат
             $dates = array();
@@ -28,11 +42,44 @@
             $dates = array_values(array_unique($dates));
             //tool::xlog('dates', $dates);
 
+            // Определяем минимальную дату и максимальную
+            $minDate = $dates[0];
+            $maxDate = $dates[count($dates) - 1];
+            foreach ($dates as $d) {
+              if (strtotime($minDate) > strtotime($d)) {
+                $minDate = $d;
+              }
+              if (strtotime($maxDate) < strtotime($d)) {
+                $maxDate = $d;
+              }
+            }
+
+            // Для периода получаем только те даты которые входят в этот период
+            if (!empty($result['period'])) {
+              $inPeriodDates = array();
+              foreach ($dates as $d) {
+                if ( (strtotime($d) >= strtotime($result['period']['startDate'])) && (strtotime($d) <= strtotime($result['period']['endDate'])) ) {
+                  $inPeriodDates[] = $d;
+                }
+              }
+              $dates = $inPeriodDates;
+            }
+
+
+            // Применяем фильтр по дате (дата, период дат)
             $filter_texts = array();
             if ($date !== '*') {
               foreach ($texts as $t) {
-                if (isset($t['date_time']) && ($date == date("Y-m-d", strtotime($t['date_time'])) ) ) {
-                  $filter_texts[] = $t;
+                if (isset($t['date_time'])) {
+                  if (!empty($result['period'])) {
+                    if ( (strtotime($t['date_time']) >= strtotime($result['period']['startDate'].' 00:00:00')) && (strtotime($t['date_time']) <= strtotime($result['period']['endDate'].' 23:59:59')) ) {
+                        $filter_texts[] = $t;
+                    }
+                  } else {
+                    if ( $date == date("Y-m-d", strtotime($t['date_time'])) ) {
+                       $filter_texts[] = $t;
+                    }
+                  }
                 }
               }
             } else {
@@ -45,9 +92,11 @@
             for ($i = ($page-1)*$pageSize; ($i < $page*$pageSize) && ($i < count($filter_texts)); $i++) {
               $out_texts[] = $filter_texts[$i];
             }
-            $result['texts'] =  $out_texts;
-            $result['dates'] =  $dates;
-            $result['date']  =  $date;
+            $result['texts'] = $out_texts;
+            $result['dates'] = $dates;
+            $result['date']  = $date;
+            $result['minDate'] = $minDate;
+            $result['maxDate'] = $maxDate;
             break;
           }
          case 'getTextStat': {
