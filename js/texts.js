@@ -9,6 +9,12 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
         $scope.dates = [];
         $scope.countNavPagesView = 9;
         $scope.countNavDatesView = 9;
+        $scope.general = {
+          stat  : [],
+          graph : {}
+        };
+
+
         /*$http.get('data/texts_bad.json').success(function(data) {
           $scope.texts = data;
         });*/
@@ -66,6 +72,29 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
 
             });
         }
+
+        $scope.hideStat = function () {
+            jQuery($scope.texts).each(function (index) {
+                $scope.texts[index].stat = [];
+            });
+            jQuery('.statGeneral').hide();
+            jQuery('.statGraph').hide();
+            jQuery('.textsList').show();
+        }
+
+        $scope.getPeriodTextStat = function () {
+            jQuery('.statGeneral').show();
+            jQuery('.statGraph').hide();
+            jQuery('.textsList').hide();
+        }
+
+        $scope.getPeriodTextGraph = function () {
+            jQuery('.statGeneral').hide();
+            jQuery('.statGraph').show();
+            jQuery('.textsList').hide();
+        }
+
+
 
         $scope.getData = function (page, data) {
           $scope.page = page;

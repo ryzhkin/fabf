@@ -1,8 +1,11 @@
 
-<div style="float: left; margin-right: 100px; margin-top: 30px;">
-    <!--<nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix">
-       <button date="{{d.date}}" ng-click="getData(1, d.date)" ng-repeat="d in dates" class="btn btn-xs {{d.class}}" style="display: block; margin-top: 5px; min-width: 74px;">{{(d.date == '*')?'Все':(d.date | getDateTimeFromMySQL | date:'dd/MM/yyyy')}}</button>
-    </nav>-->
+<div style="float: left; margin-right: 50px; margin-top: 30px;">
+    <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" style="margin-left: -120px;">
+        <button ng-click="hideStat()" class="btn btn-block btn-sm btn-default"><span class="glyphicon glyphicon-leaf"></span> Скрыть статистику</button>
+        <button ng-click="getPeriodTextStat()" class="btn btn-block btn-sm btn-default"><span class="glyphicon glyphicon-tower"></span> Статистика за период</button>
+        <button ng-click="getPeriodTextGraph()" class="btn btn-block btn-sm btn-default"><span class="glyphicon glyphicon-heart-empty"></span> Построить график</button>
+        <button ng-click="loadNewTexts()" class="btn btn-block btn-sm btn-default"><span class="glyphicon glyphicon-refresh"></span> Загрузить данные</button>
+    </nav>
 </div>
 
 
@@ -17,16 +20,28 @@
     </nav>
 </div>
 
-<div style="float: right; margin-left: 20px; margin-top: 30px;">
+<!--<div style="float: right; margin-left: 20px; margin-top: 30px;">
 
+</div>-->
+
+<div class="table-responsive statGeneral" style="display: none;">
+  <div style="margin-top: 38px;">
+     Общая статистика ....
+      <div ng-repeat="s in general.stat">
+          <span class="label label-success">{{s.word}} ({{s.count}})</span>
+      </div>
+  </div>
 </div>
 
+<div class="table-responsive statGraph" style="display: none;">
+    <div style="margin-top: 38px;">
+      График ....
+    </div>
+</div>
 
-
-<div class="table-responsive">
-    <table class="table table-hover" style="margin-top: 37px;">
-
-          <tr class="fabf-table-head" style="">
+<div class="table-responsive textsList">
+    <table class="table table-hover" style="margin-top: 38px;">
+          <tr class="fabf-table-head" style="margin-top: 0px; width: 765px;">
             <th class="order {{(order?'up':'down')}}" ng-click="order = !order"><span>Дата</span></th>
             <th>Текст</th>
             <th>Действие</th>
