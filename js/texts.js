@@ -86,6 +86,25 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
             jQuery('.statGeneral').show();
             jQuery('.statGraph').hide();
             jQuery('.textsList').hide();
+            jQuery('.general-ajax-loader').show();
+            $scope.general.stat = [];
+            $http.post('service/ajax.php', {
+                ajaxAction : 'getPeriodTextStat',
+                date       : $scope.date
+            }).success(function(data, status, headers, config) {
+                jQuery('.general-ajax-loader').hide();
+                console.log(data);
+                $scope.general.stat = [];
+                for (var s in data.stat.ru) {
+                    $scope.general.stat.push({
+                        word: s,
+                        count: data.stat.ru[s].count
+                    });
+                }
+
+            }).error(function(data, status, headers, config) {
+            });
+
         }
 
         $scope.getPeriodTextGraph = function () {

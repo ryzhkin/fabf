@@ -10,7 +10,7 @@
     );
     if (isset($params['ajaxAction'])) {
       switch ($params['ajaxAction']) {
-         case 'getTexts'   : {
+         case 'getTexts'    : {
             $date     = ((isset($params['date']))?$params['date']:'*');
             $page     = ((isset($params['page']))?$params['page']:1);
             $pageSize = ((isset($params['pageSize']))?$params['pageSize']:20);
@@ -99,9 +99,54 @@
             $result['maxDate'] = $maxDate;
             break;
           }
-         case 'getTextStat': {
+         case 'getTextStat' : {
             $text  = ((isset($params['text']))?$params['text']:'');
             $result['stat'] = ServiceDo::getStatisticForTexts([$text]);
+            break;
+         }
+         case 'getPeriodTextStat' : {
+            $date     = ((isset($params['date']))?$params['date']:'*');
+            // Проверяем на входе период дат или нет
+            $periodDate = explode('@', $date);
+            if (count($periodDate) > 1) {
+                 $startDate  = $periodDate[0];
+                 $endDate    = $periodDate[1];
+                 if (strtotime($startDate) > strtotime($endDate)) {
+                     $t = $startDate;
+                     $startDate = $endDate;
+                     $endDate = $t;
+                 }
+                 $result['period']['startDate'] = $startDate;
+                 $result['period']['endDate']   = $endDate;
+            }
+
+            $texts = file_get_contents(__DIR__.'/../data/texts_bad.json');
+            $texts = json_decode($texts, true);
+
+            // Применяем фильтр по дате (дата, период дат)
+            $filter_texts = array();
+            if ($date !== '*') {
+                 foreach ($texts as $t) {
+                     if (isset($t['date_time'])) {
+                         if (!empty($result['period'])) {
+                             if ( (strtotime($t['date_time']) >= strtotime($result['period']['startDate'].' 00:00:00')) && (strtotime($t['date_time']) <= strtotime($result['period']['endDate'].' 23:59:59')) ) {
+                                 $filter_texts[] = $t;
+                             }
+                         } else {
+                             if ( $date == date("Y-m-d", strtotime($t['date_time'])) ) {
+                                 $filter_texts[] = $t;
+                             }
+                         }
+                     }
+                 }
+            } else {
+                $filter_texts = $texts;
+            }
+            $result['count'] =  count($filter_texts);
+            $result['stat'] = ServiceDo::getStatisticForTexts($filter_texts, array(
+              'minStatCount' => 7
+            ));
+            break;
          }
       }
 

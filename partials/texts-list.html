@@ -26,9 +26,10 @@
 
 <div class="table-responsive statGeneral" style="display: none;">
   <div style="margin-top: 38px;">
-     Общая статистика ....
-      <div ng-repeat="s in general.stat">
-          <span class="label label-success">{{s.word}} ({{s.count}})</span>
+      Общая статистика:
+      <img class="general-ajax-loader" src="images/ajax-loader.gif" style="margin: 5px; display:none;">
+      <div>
+          <span ng-repeat="s in general.stat" class="label label-success" style="margin-left: 5px; margin-top: 5px; float: left;">{{s.word}} ({{s.count}})</span>
       </div>
   </div>
 </div>
