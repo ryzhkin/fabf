@@ -87,6 +87,7 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
             jQuery('.statGraph').hide();
             jQuery('.textsList').hide();
             jQuery('.general-ajax-loader').show();
+            jQuery('.general-stat-graph-pie').html('');
             $scope.general.stat = [];
             var pieData = [
                 ['Word', 'Count']
@@ -132,12 +133,17 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
         }
 
         $scope.getDataPage = function() {
+
             $http.post('service/ajax.php', {
                 ajaxAction : 'getTexts',
                 page       : $scope.page,
                 date       : $scope.date
             }).
                 success(function(data, status, headers, config) {
+                    if (jQuery('.statGeneral').is(':visible')) {
+                      $scope.getPeriodTextStat();
+                    }
+
                     console.log(data);
 
                     // console.log(data.minDate);
