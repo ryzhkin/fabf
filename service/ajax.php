@@ -144,7 +144,8 @@
             }
             $result['count'] =  count($filter_texts);
             $result['stat'] = ServiceDo::getStatisticForTexts($filter_texts, array(
-              'minStatCount' => 7
+              'minStatCount'   => 7,
+              'maxCountWords'  => 100,
             ));
             break;
          }

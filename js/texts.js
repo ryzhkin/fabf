@@ -88,6 +88,9 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
             jQuery('.textsList').hide();
             jQuery('.general-ajax-loader').show();
             $scope.general.stat = [];
+            var pieData = [
+                ['Word', 'Count']
+            ];
             $http.post('service/ajax.php', {
                 ajaxAction : 'getPeriodTextStat',
                 date       : $scope.date
@@ -97,11 +100,17 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
                 $scope.general.stat = [];
                 for (var s in data.stat.ru) {
                     $scope.general.stat.push({
-                        word: s,
-                        count: data.stat.ru[s].count
+                        word    : s,
+                        count   : data.stat.ru[s].count,
+                        percent : data.stat.ru[s].percent
                     });
+                    pieData.push([s, data.stat.ru[s].count]);
                 }
-
+                pieData = google.visualization.arrayToDataTable(pieData);
+                var chart = new google.visualization.PieChart(jQuery('.general-stat-graph-pie')[0]);
+                chart.draw(pieData, {
+                    title: 'Статистика за период'
+                });
             }).error(function(data, status, headers, config) {
             });
 

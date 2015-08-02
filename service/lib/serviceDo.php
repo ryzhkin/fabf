@@ -220,7 +220,7 @@ class ServiceDo {
     public static function getStatisticForTexts ($texts = array(), $options = array()) {
         $opt = array(
             'minStatCount'  => 2,          // Отсечение по минимальному кол-ву повторов слов
-            'maxCountWords' => 100000000,  // Кол-во слов которые попадают в конечный рейтинг
+            'maxCountWords' => 100000000,  // Кол-во слов которые попадают в конечный топ рейтинга
         );
         $opt = array_merge($opt, $options);
         if (count($texts) == 0) {
@@ -287,11 +287,14 @@ class ServiceDo {
         $en = $en_out;
         $ru = array();
 
+        $totalWordsCount = 0;
         foreach ($ru_out as $w => $v) {
+            // Фильтр для топа
             if (count($ru) <= $opt['maxCountWords'])
                 if (isset($ru_out[$w]['gram'])) {
                     foreach ($ru_out[$w]['gram'] as $gram) {
                         if (in_array($gram, array('С', /*'ИНФИНИТИВ',*/ 'ФРАЗ', 'Г'/*, 'Н'*/))) {
+                            $totalWordsCount += $ru_out[$w]['count'];
                             $ru[$w] = $ru_out[$w];
                             break;
                         }
@@ -302,9 +305,19 @@ class ServiceDo {
                 }
         }
 
+        // Вычисляем процентное онтносительное кол-во
+        foreach ($ru as &$item) {
+          $item['percent'] = ceil(($item['count']/$totalWordsCount)*10000)/100;
+        }
+
+
+
+
+
         $statistic = array(
             'en' => $en,
             'ru' => $ru,
+            'ruTotalWordsCount' => $totalWordsCount,
         );
         // tool::clog($statistic);
         return $statistic;
