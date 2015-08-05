@@ -28,10 +28,10 @@ class ServiceDo {
     }
 
     // Получаем массив ссылок с ресурса $type и с настройками $options
-    private static function getLinks($type = '112', $options = array( ) ) {
+    private static function getLinks($type = '112.ua', $options = array( ) ) {
         $links = array();
         switch ($type) {
-            case '112': {
+            case '112.ua': {
                 require_once('phpQuery/phpQuery/phpQuery.php');
                 $url = 'http://112.ua/archive';
                 $query = '';
@@ -55,7 +55,7 @@ class ServiceDo {
                     if (strpos($url, '/video/') === FALSE) {
                         $links[] = array(
                             'date_time_str' => pq($item)->find('.time')->text(),
-                            'date_time'     => date('Y-m-d H:i:s', strtotime(tool::ruStrDateToEng(pq($item)->find('.time')->text())) ),
+                            'date_time'     => date('Y-m-d H:i:s', strtotime(tool::ruStrDateToEng(pq($item)->find('.time')->text()).' -1 month') ),
                             'url'           => 'http://112.ua'.$url,
                         );
                     }
@@ -343,28 +343,28 @@ class ServiceDo {
       return $uniqueTexts;
     }
 
-
-    private static function getTexts() {
-        tool::clog('Get ', 'yellow', false);
-        tool::clog('BAD', 'red', false);
-        tool::clog(' texts:'."\n", 'yellow');
-
-        tool::clog('1) Get from 112.ua: ', 'yellow');
-        $maxPage = 40;
+    public static $getTexts = "Получение текстов из интернета";
+    public static function getTexts($maxCountTexts = 10, $sourceType = '112.ua', $textsCategory = [7], $toFileName = "texts.json") {
+        tool::clog('Get texts from '.$sourceType.': '."\n", 'yellow', false);
         $links = array();
-        tool::clog('[1 - '.$maxPage.']', 'yellow');
-        for ($p = 1; $p <= $maxPage; $p++) {
-            $ll = self::getLinks('112', array(
-                'category' => [7],
-                'page'     => $p,
-            ));
-            foreach ($ll as $l) {
+        $currentPage = 1;
+        $iterationLimit = 1000;
+        $iterationCounter = 0;
+        while (count($links) < $maxCountTexts && $iterationCounter < $iterationLimit) {
+           $ll = self::getLinks('112.ua', array(
+              'category' => [7],
+              'page'     => $currentPage,
+           ));
+           foreach ($ll as $l) {
+             if (count($links) < $maxCountTexts) {
                $links[] = $l;
-            }
-            tool::clog($p.', ', 'green', false);
+             }
+           }
+          $currentPage++;
+          $iterationCounter++;
         }
-        self::saveDataToFile($links, 'data/links_bad.json');
-        tool::clog("\nDownload texts ...", 'yellow');
+
+        tool::clog("Download texts ...", 'yellow');
         $percent = 0;
         $c = 0;
         $start = time();
@@ -377,8 +377,8 @@ class ServiceDo {
             $dpercent = floor(($c/count($links))*100);
             if ($dpercent > $percent) {
                 $percent = $dpercent;
-                sleep(1);
-                echo "\x1b[K";
+                //sleep(1);
+                tool::clog("\x1b[K", "", false);
                 tool::clog("\r  Progress - ".$percent.'% ', 'white', false);
                 if ($percent < 100) {
                     //tool::clog('...', '', false);
@@ -390,13 +390,35 @@ class ServiceDo {
                 }
             }
         }
-        //$links = self::getUniqueTexts($links);
-        self::saveDataToFile($links, 'data/texts_bad.json');
-        //*/
 
-        // http:\\112.ua/avarii-chp/v-kieve-na-troeshhine-prorvalo-truboprovod-iz-pod-zemli-bil-fontan-vysotoy-s-devyatietazhnyy-dom-236877.html
+        // $links = self::getUniqueTexts($links);
+        // self::saveDataToFile($links, 'data/texts_bad.json');
 
+        if ($toFileName !== '' && php_sapi_name() == "cli") {
+           self::saveDataToFile($links, 'data/'.$toFileName);
+        }
+        return $links;
     }
+
+    public static $getTextsToDB = "Получение текстов из интернета в базу данных";
+    public static function getTextsToDB ($maxCountTexts = 10, $sourceType = '112.ua', $textsCategory = [7]) {
+        $texts = ServiceDo::getTexts($maxCountTexts, $sourceType, $textsCategory, "");
+        foreach ($texts as $text) {
+            $r = tool::runSQL("SELECT * FROM `texts` WHERE `url` = :url", array(
+                ':url'             => $text['url'],
+            ));
+            if (count($r) == 0) {
+                tool::runSQL("
+                    INSERT INTO `texts` (`text`, `url`, `text_date_time`) VALUES (:text, :url, :text_date_time);
+                  ",array(
+                    ':text'            => $text['text'],
+                    ':url'             => $text['url'],
+                    ':text_date_time'  => $text['date_time'],
+                ));
+            }
+        }
+    }
+
 
     public static $run = "Запуск серверного кода системы";
     public static function run () {

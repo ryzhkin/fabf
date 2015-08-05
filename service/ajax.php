@@ -16,22 +16,85 @@
             $pageSize = ((isset($params['pageSize']))?$params['pageSize']:20);
             $result['page']     = $page;
             $result['pageSize'] = $pageSize;
-            $texts = file_get_contents(__DIR__.'/../data/texts_bad.json');
-            $texts = json_decode($texts, true);
-
             // Проверяем на входе период дат или нет
             $periodDate = explode('@', $date);
             if (count($periodDate) > 1) {
-              $startDate  = $periodDate[0];
-              $endDate    = $periodDate[1];
-              if (strtotime($startDate) > strtotime($endDate)) {
-                $t = $startDate;
-                $startDate = $endDate;
-                $endDate = $t;
-              }
-              $result['period']['startDate'] = $startDate;
-              $result['period']['endDate']   = $endDate;
+                 $startDate  = $periodDate[0];
+                 $endDate    = $periodDate[1];
+                 if (strtotime($startDate) > strtotime($endDate)) {
+                     $t = $startDate;
+                     $startDate = $endDate;
+                     $endDate = $t;
+                 }
+                 $result['period']['startDate'] = $startDate;
+                 $result['period']['endDate']   = $endDate;
             }
+
+            // Получаем список дат
+            $dates = array();
+            $sql = "
+              SELECT
+                DATE_FORMAT(texts.text_date_time, '%Y-%m-%d') as d
+              FROM texts
+              GROUP BY d
+              ORDER BY d DESC
+            ";
+            $rows = tool::runSQL($sql);
+            //tool::xlog('sql', $rows);
+            foreach ($rows as $r) {
+              $dates[] = $r['d'];
+            }
+
+
+            // Определяем минимальную дату и максимальную
+            $minDate = $dates[count($dates) - 1];
+            $maxDate = $dates[0];
+
+            // Для периода получаем только те даты которые входят в этот период
+            if (!empty($result['period'])) {
+                 $inPeriodDates = array();
+                 foreach ($dates as $d) {
+                     if ( (strtotime($d) >= strtotime($result['period']['startDate'])) && (strtotime($d) <= strtotime($result['period']['endDate'])) ) {
+                         $inPeriodDates[] = $d;
+                     }
+                 }
+                 $dates = $inPeriodDates;
+            }
+
+
+            // Получаем страницу данных
+            $out_texts = array();
+            $period = "";
+            if ($date !== '*') {
+                 if (!empty($result['period'])) {
+                     $period = "WHERE texts.text_date_time >= '".($result['period']['startDate'].' 00:00:00')."' AND texts.text_date_time <= '".($result['period']['endDate'].' 23:59:59')."'";
+                 } else {
+                     $period = "WHERE DATE_FORMAT(texts.text_date_time, '%Y-%m-%d') = '{$date}'";
+                 }
+            }
+
+            $sql = "
+              SELECT SQL_CALC_FOUND_ROWS
+               *,
+               texts.text_date_time as date_time
+              FROM texts
+              {$period}
+              ORDER BY texts.text_date_time DESC
+              LIMIT ".($pageSize*($page-1)).", {$pageSize}
+            ";
+            $rows = tool::runSQL($sql);
+            foreach ($rows as $r) {
+              $out_texts[] = $r;
+            }
+            //tool::xlog('texts', $out_texts);
+            $count = tool::runSQL("SELECT FOUND_ROWS() as c;");
+            $count = $count[0]['c'];
+            $result['count'] = $count;
+            //*/
+
+          /*
+            $texts = file_get_contents(__DIR__.'/../data/texts_bad.json');
+            $texts = json_decode($texts, true);
 
 
             // Получаем список дат
@@ -92,6 +155,9 @@
             for ($i = ($page-1)*$pageSize; ($i < $page*$pageSize) && ($i < count($filter_texts)); $i++) {
               $out_texts[] = $filter_texts[$i];
             }
+            //*/
+
+
             $result['texts'] = $out_texts;
             $result['dates'] = $dates;
             $result['date']  = $date;
@@ -147,6 +213,10 @@
               'minStatCount'   => 7,
               'maxCountWords'  => 100,
             ));
+            break;
+         }
+         case 'loadTexts': {
+            ServiceDo::getTextsToDB(30);
             break;
          }
       }

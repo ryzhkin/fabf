@@ -124,6 +124,18 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
         }
 
 
+        $scope.loadTexts = function () {
+            console.info('Start load texts');
+            $http.post('service/ajax.php', {
+                ajaxAction : 'loadTexts',
+                date       : $scope.date
+            }).success(function(data, status, headers, config) {
+                console.log(data);
+                console.info('End load texts');
+            }).error(function(data, status, headers, config) {
+
+            });
+        }
 
         $scope.getData = function (page, data) {
           $scope.page = page;

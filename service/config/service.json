@@ -1,7 +1,7 @@
 {
   "db": {
      "host"     : "localhost",
-     "database" : "ryshkin_eventagency",
+     "database" : "fabf",
      "charset"  : "utf8",
      "user"     : "root",
      "password" : ""
