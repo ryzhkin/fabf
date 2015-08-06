@@ -78,4 +78,14 @@
 .fabf-row-active {
   background-color: #F5F5F5;
 }
+.fabf-action {
+  color: white;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.fabf-action:hover {
+  color: white;
+  text-decoration: none;
+}
 

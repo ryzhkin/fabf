@@ -61,11 +61,9 @@ texts.controller('texts.list', ['$scope', '$http', '$location', '$routeParams',
               $scope.texts[index].stat = [];
               for (var s in data.stat.ru) {
                 //console.log(s);
-                $scope.texts[index].stat.push({
-                  word: s,
-                  count: data.stat.ru[s].count
-                });
+                $scope.texts[index].stat.push(data.stat.ru[s]);
               }
+              console.log($scope.texts[index].stat);
 
             }).
             error(function(data, status, headers, config) {

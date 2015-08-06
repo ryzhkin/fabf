@@ -262,6 +262,18 @@
          case 'getTextStat' : {
             $text  = ((isset($params['text']))?$params['text']:'');
             $result['stat'] = ServiceDo::getStatisticForTexts([$text]);
+            foreach ($result['stat']['ru'] as $word => &$info) {
+              $search = tool::runSQL("SELECT * FROM words WHERE word = :word", array(
+                ':word' => $word
+              ));
+              $info['db'] = $search[0];
+              /*if (count($search) > 0) {
+                $info['db'] = $search[0];
+              } else {
+                $info['db'] = 'false';
+              }*/
+              $info['word'] = $word;
+            }
             break;
          }
          case 'getPeriodTextStat' : {

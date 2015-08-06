@@ -59,7 +59,15 @@
 
                <div style="margin-top: 5px; text-align: right;">
                  <div ng-repeat="s in text.stat">
-                   <span class="label label-success">{{s.word}} ({{s.count}})</span>
+                   <span class="label label-success">{{s.word}} ({{s.count}})
+
+                       {{s.db == null?'<s>yoo</s>':'r'}}
+
+                       {{s.db == 'false' ? '<a href="#" class="fabf-action" title="Пометить как положительное слово">[+]</a>':''}}
+                       {{s.db == '' ? '<a href="#" class="fabf-action" title="Пометить как отрицательное слово">[-]</a>':''}}
+                       {{s.db !== '' ? '<a href="#" class="fabf-action" title="Удалить слово из базы">[x]</a>':''}}
+                   </span>
+
                  </div>
                </div>
 
