@@ -403,6 +403,7 @@ class ServiceDo {
     public static $getTextsToDB = "Получение текстов из интернета в базу данных";
     public static function getTextsToDB ($maxCountTexts = 10, $sourceType = '112.ua', $textsCategory = [7]) {
         $texts = ServiceDo::getTexts($maxCountTexts, $sourceType, $textsCategory, "");
+        $addedNewTextsCounter = 0;
         foreach ($texts as $text) {
             $r = tool::runSQL("SELECT * FROM `texts` WHERE `url` = :url", array(
                 ':url'             => $text['url'],
@@ -415,8 +416,10 @@ class ServiceDo {
                     ':url'             => $text['url'],
                     ':text_date_time'  => $text['date_time'],
                 ));
+                $addedNewTextsCounter++;
             }
         }
+        tool::clog("Added new texts: ".$addedNewTextsCounter, 'green');
     }
 
 
